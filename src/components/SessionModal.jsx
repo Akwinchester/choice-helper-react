@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Modal from './Modal';
+import Modal from './modals/Modal';
 import './SessionModal.css';
 
 function SessionModal({ isOpen, onClose, cards }) {

@@ -25,7 +25,7 @@ function AddBoardModal({ isOpen, onClose, onCreateBoard }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2>Создание новой доски</h2>
-      <form onSubmit={handleSubmit}>
+      <form className="add-board-form"onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Название доски"
