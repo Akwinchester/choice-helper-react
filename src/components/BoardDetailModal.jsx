@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Modal from './Modal';
-import './BoardDetailModal.css'; // Подключаем стили для галереи
+import SessionModal from './SessionModal';
+import './BoardDetailModal.css';
 
 function BoardDetailModal({
   isOpen,
@@ -11,9 +12,9 @@ function BoardDetailModal({
   isError,
   onOpenAddCardModal
 }) {
-  if (!boardDetail) {
-    return null;
-  }
+  const [isSessionOpen, setIsSessionOpen] = useState(false);
+
+  if (!boardDetail) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
@@ -47,8 +48,14 @@ function BoardDetailModal({
             <p>Пока нет карточек</p>
           )}
 
-          {/* Кнопка «Добавить карточку» */}
-          <button onClick={onOpenAddCardModal}>Добавить карточку</button>
+          {/* Контейнер кнопок */}
+          <div className="modal-buttons">
+            <button className="modal-button" onClick={onOpenAddCardModal}>Добавить карточку</button>
+            <button className="modal-button" onClick={() => setIsSessionOpen(true)}>Начать сессию</button>
+          </div>
+
+          {/* Модалка сессии */}
+          <SessionModal isOpen={isSessionOpen} onClose={() => setIsSessionOpen(false)} cards={cards} />
         </>
       )}
     </Modal>

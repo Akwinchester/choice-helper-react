@@ -39,3 +39,36 @@
 .card-text {
     margin-top: 10px;
 }
+
+/* Контейнер кнопок */
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px; /* Промежуток между кнопками */
+    margin-top: 15px;
+}
+
+/* Общий стиль кнопок */
+.modal-button {
+    padding: 10px 15px;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+
+.modal-button:hover {
+    background: #ddd;
+}
+
+/* Красная кнопка закрытия */
+.modal-button.close {
+    background: red;
+    color: white;
+}
+
+.modal-button.close:hover {
+    background: darkred;
+}

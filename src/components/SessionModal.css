@@ -1,0 +1,85 @@
+/* Контейнер сессии */
+.session-card-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    position: relative;
+}
+
+/* Карточка */
+.session-card {
+    width: 300px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+/* Картинка карточки */
+.session-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Кнопки стрелок */
+.arrow-button {
+    position: absolute;
+    background: blue;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Левая кнопка */
+.arrow-button.left {
+    left: 20px;
+}
+
+/* Правая кнопка */
+.arrow-button.right {
+    right: 20px;
+}
+
+/* Завершение сессии */
+.end-session {
+    background: red;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* Галерея лайкнутых карточек */
+.liked-gallery {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.liked-card {
+    width: 300px;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.liked-card img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+}
