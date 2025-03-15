@@ -1,130 +1,113 @@
-// src/pages/BoardsPage.jsx
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchBoards,
   createBoard,
   deleteBoard,
   fetchBoard,
-  updateBoard  // <-- не забудьте импортировать
-} from '../api/boardsApi';
-import {
-  fetchCards,
-  createCard,
-  attachCardToBoard
-} from '../api/cardsApi';
+  updateBoard,
+} from "../api/boardsApi";
+import { fetchCards, createCard, attachCardToBoard, deleteCard, updateCard } from "../api/cardsApi";
 
-// Наши компоненты
-import AddBoardModal from '../components/AddBoardModal';
-import BoardDetailModal from '../components/BoardDetailModal';
-import AddCardModal from '../components/AddCardModal';
-import EditBoardModal from '../components/EditBoardModal'; // <-- новый компонент
+// Компоненты
+import AddBoardModal from "../components/AddBoardModal";
+import BoardDetailModal from "../components/BoardDetailModal";
+import AddCardModal from "../components/AddCardModal";
+import EditBoardModal from "../components/EditBoardModal";
 
-import '../styles/main.css';
-import '../styles/board.css';
+import "../styles/main.css";
+import "../styles/board.css";
 
 function BoardsPage() {
-
-
   const queryClient = useQueryClient();
 
-  // ---- [Создание доски] ----
+  // ---- [Модальные окна] ----
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-
-  // ---- [Детальный просмотр доски] ----
-  const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  // ---- [Добавление карточки] ----
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
-
-  // ---- [Редактирование доски] ----
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  // ---- [Текущая доска] ----
+  const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [boardToEdit, setBoardToEdit] = useState(null);
 
-  // Загрузка списка досок
+  // ---- [Запрос списка досок] ----
   const {
     data: boards,
     isLoading: isBoardsLoading,
     isError: isBoardsError,
     error: boardsError,
   } = useQuery({
-    queryKey: ['boards'],
+    queryKey: ["boards"],
     queryFn: fetchBoards,
   });
 
-  // ----- Мутации -----
+  // ---- [Запрос данных одной доски] ----
+  const {
+    data: boardDetail,
+    isLoading: isBoardDetailLoading,
+    isError: isBoardDetailError,
+  } = useQuery({
+    queryKey: ["boardDetail", selectedBoardId],
+    queryFn: () => fetchBoard(selectedBoardId),
+    enabled: !!selectedBoardId,
+  });
+
+  // ---- [Запрос карточек доски] ----
+  const {
+    data: detailCards,
+    isLoading: isDetailCardsLoading,
+    isError: isDetailCardsError,
+  } = useQuery({
+    queryKey: ["boardDetail", selectedBoardId, "cards"],
+    queryFn: () => fetchCards(selectedBoardId),
+    enabled: !!selectedBoardId,
+  });
+
+  // ---- [Мутации (Создание/Редактирование/Удаление)] ----
   const createBoardMutation = useMutation({
     mutationFn: createBoard,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['boards']);
-    },
+    onSuccess: () => queryClient.invalidateQueries(["boards"]),
   });
 
   const deleteBoardMutation = useMutation({
     mutationFn: deleteBoard,
+    onSuccess: () => queryClient.invalidateQueries(["boards"]),
+  });
+
+  const updateBoardMutation = useMutation({
+    mutationFn: ({ boardId, data }) => updateBoard(boardId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries(['boards']);
+      queryClient.invalidateQueries(["boards"]);
+      if (selectedBoardId) queryClient.invalidateQueries(["boardDetail", selectedBoardId]);
     },
   });
 
   const createCardMutation = useMutation({
     mutationFn: createCard,
     onSuccess: (createdCard) => {
-      attachCardToBoardMutation.mutate({
-        boardId: selectedBoardId,
-        cardId: createdCard.id,
-      });
+      attachCardToBoardMutation.mutate([selectedBoardId, createdCard.id]);
     },
   });
 
-const attachCardToBoardMutation = useMutation({
-  mutationFn: ([boardId, cardId]) => attachCardToBoard(boardId, cardId),
-  onSuccess: () => {
-    queryClient.invalidateQueries(['boardDetail', selectedBoardId, 'cards']);
-  },
-});
-
-  // ---- Мутация для редактирования доски ----
-  const updateBoardMutation = useMutation({
-    mutationFn: ({ boardId, data }) => updateBoard(boardId, data),
+  const attachCardToBoardMutation = useMutation({
+    mutationFn: ([boardId, cardId]) => attachCardToBoard(boardId, cardId),
     onSuccess: () => {
-      // Обновляем список досок
-      queryClient.invalidateQueries(['boards']);
-      // Обновляем, если нужно, деталку
-      if (selectedBoardId) {
-        queryClient.invalidateQueries(['boardDetail', selectedBoardId]);
-      }
+      queryClient.invalidateQueries(["boardDetail", selectedBoardId, "cards"]);
     },
   });
 
-  // -----------------------------------------
-  // Функционал для детального просмотра
-  // (fetchBoard, fetchCards) ...
-  // -----------------------------------------
-  const {
-    data: boardDetail,
-    isLoading: isBoardDetailLoading,
-    isError: isBoardDetailError,
-  } = useQuery({
-    queryKey: ['boardDetail', selectedBoardId],
-    queryFn: () => fetchBoard(selectedBoardId),
-    enabled: !!selectedBoardId,
+  const deleteCardMutation = useMutation({
+    mutationFn: deleteCard,
+    onSuccess: () => queryClient.invalidateQueries(["boardDetail", selectedBoardId, "cards"]),
   });
 
-  const {
-    data: detailCards,
-    isLoading: isDetailCardsLoading,
-    isError: isDetailCardsError,
-  } = useQuery({
-    queryKey: ['boardDetail', selectedBoardId, 'cards'],
-    queryFn: () => fetchCards(selectedBoardId),
-    enabled: !!selectedBoardId,
+  const updateCardMutation = useMutation({
+    mutationFn: ({ cardId, formData }) => updateCard(cardId, formData),
+    onSuccess: () => queryClient.invalidateQueries(["boardDetail", selectedBoardId, "cards"]),
   });
 
-  // -----------------------------------------
-  // Handlers
-  // -----------------------------------------
+  // ---- [Handlers] ----
   const openCreateModal = () => setIsCreateModalOpen(true);
   const closeCreateModal = () => setIsCreateModalOpen(false);
 
@@ -140,9 +123,8 @@ const attachCardToBoardMutation = useMutation({
   const openAddCardModal = () => setIsAddCardModalOpen(true);
   const closeAddCardModal = () => setIsAddCardModalOpen(false);
 
-  // Редактирование доски
   const openEditModal = (e, board) => {
-    e.stopPropagation(); // чтобы не открывался детальный просмотр
+    e.stopPropagation();
     setBoardToEdit(board);
     setIsEditModalOpen(true);
   };
@@ -151,9 +133,6 @@ const attachCardToBoardMutation = useMutation({
     setBoardToEdit(null);
   };
 
-  // -----------------------------------------
-  // Логика
-  // -----------------------------------------
   const handleCreateBoard = (title, description) => {
     createBoardMutation.mutate({ title, description });
     closeCreateModal();
@@ -165,92 +144,51 @@ const attachCardToBoardMutation = useMutation({
   };
 
   const handleCreateCard = (formData) => {
-    createCardMutation.mutate(formData, {
-      onSuccess: (createdCard) => {
-        console.log("Created card:", createdCard);
-        console.log("selectedBoardId:", selectedBoardId);
-        
-        if (!selectedBoardId) {
-          console.error("Ошибка: boardId не определен!");
-          return;
-        }
-  
-        // Здесь важно передавать **отдельные аргументы**, а не один объект
-        attachCardToBoardMutation.mutate([selectedBoardId, createdCard.id]);
-      },
-    });
+    createCardMutation.mutate(formData);
     closeAddCardModal();
   };
-  // Вызов «Обновить список досок»
-  const handleRefreshBoards = () => {
-    queryClient.invalidateQueries(['boards']);
+
+  const handleDeleteCard = (cardId) => {
+    deleteCardMutation.mutate(cardId);
   };
 
-  // Самое главное — логика обновления:
   const handleUpdateBoard = (boardId, newData) => {
     updateBoardMutation.mutate({ boardId, data: newData });
     closeEditModal();
   };
 
-  // -----------------------------------------
-  // Render
-  // -----------------------------------------
-  if (isBoardsLoading) return <div>Загрузка досок...</div>;
-  if (isBoardsError) return <div>Ошибка: {boardsError.message}</div>;
+  const handleUpdateCard = (cardId, formData) => {
+    updateCardMutation.mutate({ cardId, formData });
+  };
 
   return (
     <div className="container">
       <h1>Доски</h1>
 
       <button onClick={openCreateModal}>Создать доску</button>
-      <button onClick={handleRefreshBoards} style={{ marginLeft: '10px' }}>
+      <button onClick={() => queryClient.invalidateQueries(["boards"])} style={{ marginLeft: "10px" }}>
         Обновить список
       </button>
 
       <ul className="boards-list">
         {boards?.map((board) => (
-          <li
-            key={board.id}
-            onClick={() => openDetailModal(board.id)}
-            style={{ cursor: 'pointer' }}
-          >
+          <li key={board.id} onClick={() => openDetailModal(board.id)} style={{ cursor: "pointer" }}>
             <div>
               <strong>{board.title}</strong> - {board.description}
             </div>
-            {/* Кнопка «Редактировать» */}
-            <button
-              style={{ marginRight: '8px' }}
-              onClick={(e) => openEditModal(e, board)}
-            >
+            <button style={{ marginRight: "8px" }} onClick={(e) => openEditModal(e, board)}>
               Редактировать
             </button>
-            {/* Кнопка «Удалить» */}
-            <button
-              className="icon-button delete"
-              onClick={(e) => handleDeleteBoard(e, board.id)}
-            >
+            <button className="icon-button delete" onClick={(e) => handleDeleteBoard(e, board.id)}>
               Удалить
             </button>
           </li>
         ))}
       </ul>
 
-      {/* Модалка «Создать доску» */}
-      <AddBoardModal
-        isOpen={isCreateModalOpen}
-        onClose={closeCreateModal}
-        onCreateBoard={handleCreateBoard}
-      />
+      <AddBoardModal isOpen={isCreateModalOpen} onClose={closeCreateModal} onCreateBoard={handleCreateBoard} />
+      <EditBoardModal isOpen={isEditModalOpen} onClose={closeEditModal} boardToEdit={boardToEdit} onUpdateBoard={handleUpdateBoard} />
 
-      {/* Модалка «Редактировать доску» */}
-      <EditBoardModal
-        isOpen={isEditModalOpen}
-        onClose={closeEditModal}
-        boardToEdit={boardToEdit}
-        onUpdateBoard={handleUpdateBoard}
-      />
-
-      {/* Модалка «Детальная информация» */}
       <BoardDetailModal
         isOpen={isDetailOpen}
         onClose={closeDetailModal}
@@ -259,15 +197,11 @@ const attachCardToBoardMutation = useMutation({
         isLoading={isBoardDetailLoading || isDetailCardsLoading}
         isError={isBoardDetailError || isDetailCardsError}
         onOpenAddCardModal={openAddCardModal}
+        onDeleteCard={handleDeleteCard}
+        onUpdateCard={handleUpdateCard}
       />
 
-      {/* Модалка «Добавить карточку» */}
-      <AddCardModal
-        isOpen={isAddCardModalOpen}
-        onClose={closeAddCardModal}
-        onCreateCard={handleCreateCard}
-        boardId={selectedBoardId}
-      />
+      <AddCardModal isOpen={isAddCardModalOpen} onClose={closeAddCardModal} onCreateCard={handleCreateCard} />
     </div>
   );
 }

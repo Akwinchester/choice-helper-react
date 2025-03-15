@@ -45,3 +45,28 @@ export async function attachCardToBoard(boardId, cardId) {
 
   return response.json();
 }
+
+// ✅ Обновляем карточку (теперь с поддержкой FormData)
+// export async function updateCard(cardId, formData) {
+//   const response = await fetch(`${BASE_URL}/cards/${cardId}`, {
+//     method: "PUT",
+//     body: formData, // ✅ Теперь отправляем как FormData
+//   });
+
+//   if (!response.ok) {
+//     throw new Error("Ошибка обновления карточки");
+//   }
+
+//   return response.json();
+// }
+
+// Удалить карточку
+export async function deleteCard(cardId) {
+  const response = await fetch(`${BASE_URL}/cards/${cardId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Ошибка удаления карточки");
+  }
+}

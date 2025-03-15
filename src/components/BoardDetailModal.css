@@ -44,7 +44,7 @@
 .modal-buttons {
     display: flex;
     justify-content: center;
-    gap: 10px; /* Промежуток между кнопками */
+    gap: 10px; /* Добавляет отступы между кнопками */
     margin-top: 15px;
 }
 
