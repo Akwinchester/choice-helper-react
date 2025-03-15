@@ -1,10 +1,28 @@
 import React, { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Modal from "./Modal";
 import CardDetailModal from "./CardDetailModal";
+import SessionModal from "./SessionModal"; // ✅ Импортируем модалку сессии
+import { updateCard } from "../api/cardsApi"; // Импортируем API для обновления
 import "./BoardDetailModal.css";
 
-function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onUpdateCard, onDeleteCard }) {
+function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, onOpenAddCardModal }) {
   const [selectedCard, setSelectedCard] = useState(null);
+  const [isSessionOpen, setIsSessionOpen] = useState(false); // ✅ Состояние для сессии
+  const queryClient = useQueryClient();
+
+  // ✅ useMutation вызывается на верхнем уровне
+  const updateCardMutation = useMutation({
+    mutationFn: ({ cardId, formData }) => updateCard(cardId, formData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(["cards", boardDetail?.id]); // Обновляем список карточек
+    },
+  });
+
+  // ✅ Передаем функцию обновления карточки
+  const handleUpdateCard = (cardId, formData) => {
+    updateCardMutation.mutate({ cardId, formData });
+  };
 
   if (!boardDetail) return null;
 
@@ -34,17 +52,34 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onUpdateCard, o
         <p>Пока нет карточек</p>
       )}
 
-      <button onClick={onClose}>Закрыть</button>
+      {/* Контейнер кнопок */}
+      <div className="modal-buttons">
+        <button className="modal-button" onClick={onOpenAddCardModal}>
+          Добавить карточку
+        </button>
+        <button className="modal-button" onClick={() => setIsSessionOpen(true)}>
+          Начать сессию
+        </button>
+      </div>
 
       {/* Модалка карточки */}
       {selectedCard && (
         <CardDetailModal
-          isOpen={!!selectedCard}
-          onClose={() => setSelectedCard(null)}
-          card={selectedCard}
-          onUpdateCard={onUpdateCard}
-          onDeleteCard={onDeleteCard} // ✅ Теперь передается
-        />
+        isOpen={!!selectedCard}
+        onClose={() => setSelectedCard(null)}
+        card={selectedCard}
+        onUpdateCard={handleUpdateCard} 
+        onDeleteCard={onDeleteCard}
+        onCardUpdated={(updatedCard) => {
+          // 🔄 Обновляем карточку в локальном состоянии
+          setSelectedCard(updatedCard);
+        }}
+      />
+      )}
+
+      {/* Модалка сессии */}
+      {isSessionOpen && (
+        <SessionModal isOpen={isSessionOpen} onClose={() => setIsSessionOpen(false)} cards={cards} />
       )}
     </Modal>
   );

@@ -1,14 +1,27 @@
 /* Контейнер формы */
 .add-card-form {
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* Располагаем элементы вертикально */
     align-items: center;
-    gap: 10px;
-    padding: 15px;
+    gap: 15px; /* Отступы между элементами */
+    padding: 20px;
     width: 100%;
+    max-width: 400px; /* Ограничиваем ширину формы */
+    margin: 0 auto; /* Центрируем форму */
 }
 
-/* Контейнер для кадрирования */
+/* Поля ввода */
+.add-card-form input,
+.add-card-form textarea {
+    width: 100%; /* Делаем поля на всю ширину формы */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box; /* Чтобы padding не влиял на ширину */
+}
+
+/* Контейнер для изображения */
 .image-crop-container {
     width: 100%;
     display: flex;
@@ -17,14 +30,14 @@
     margin-top: 10px;
 }
 
-/* Картинка в полном размере */
+/* Картинка */
 .full-size-image {
     max-width: 100%;
-    max-height: 500px;
+    max-height: 400px;
     object-fit: contain;
 }
 
-/* Стиль кнопки */
+/* Кнопка */
 .add-card-form button {
     padding: 10px 15px;
     background: #4CAF50;
@@ -32,7 +45,8 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 16px;
+    width: 100%; /* Делаем кнопку на всю ширину формы */
     transition: background 0.3s;
 }
 

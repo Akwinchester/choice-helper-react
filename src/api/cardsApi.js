@@ -46,19 +46,23 @@ export async function attachCardToBoard(boardId, cardId) {
   return response.json();
 }
 
-// ✅ Обновляем карточку (теперь с поддержкой FormData)
-// export async function updateCard(cardId, formData) {
-//   const response = await fetch(`${BASE_URL}/cards/${cardId}`, {
-//     method: "PUT",
-//     body: formData, // ✅ Теперь отправляем как FormData
-//   });
+// Обновить карточку
+export async function updateCard(cardId, formData) {
+  console.log("Отправляем обновленные данные:", Object.fromEntries(formData.entries())); // 🔍 Логируем перед отправкой
 
-//   if (!response.ok) {
-//     throw new Error("Ошибка обновления карточки");
-//   }
+  const response = await fetch(`${BASE_URL}/cards/${cardId}`, {
+    method: "PUT",
+    body: formData, // ✅ Отправляем FormData
+  });
 
-//   return response.json();
-// }
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => null);
+    console.error("Ошибка сервера:", errorData);
+    throw new Error("Ошибка обновления карточки");
+  }
+
+  return response.json();
+}
 
 // Удалить карточку
 export async function deleteCard(cardId) {

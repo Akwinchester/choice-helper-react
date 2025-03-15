@@ -166,9 +166,6 @@ function BoardsPage() {
       <h1>Доски</h1>
 
       <button onClick={openCreateModal}>Создать доску</button>
-      <button onClick={() => queryClient.invalidateQueries(["boards"])} style={{ marginLeft: "10px" }}>
-        Обновить список
-      </button>
 
       <ul className="boards-list">
         {boards?.map((board) => (
