@@ -1,0 +1,41 @@
+/* Галерея карточек */
+.card-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+
+/* Стили для карточки */
+.card-item {
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Стили для изображения карточки */
+.card-image {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+/* Если нет изображения */
+.no-image {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ddd;
+    color: #555;
+    border-radius: 5px;
+}
+
+/* Текст карточки */
+.card-text {
+    margin-top: 10px;
+}
