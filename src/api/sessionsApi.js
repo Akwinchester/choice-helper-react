@@ -1,55 +1,32 @@
-const BASE_URL = 'http://127.0.0.1:8000';
+import apiClient from "./apiClient";
 
 // Создать новую сессию
-export async function createSession(boardId, sessionType = 'individual') {
-  const response = await fetch(`${BASE_URL}/sessions/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      board_id: boardId,
-      type: sessionType
-    })
+export const createSession = async (boardId, sessionType = "individual") => {
+  const response = await apiClient.post("/sessions/", {
+    board_id: boardId,
+    type: sessionType,
   });
-  if (!response.ok) {
-    throw new Error('Failed to create session');
-  }
-  return response.json();
-}
+  return response.data;
+};
 
 // Удалить сессию
-export async function deleteSession(sessionId) {
-  const response = await fetch(`${BASE_URL}/sessions/${sessionId}`, {
-    method: 'DELETE'
-  });
-  if (!response.ok) {
-    throw new Error('Failed to delete session');
-  }
-  return response.text();
-}
+export const deleteSession = async (sessionId) => {
+  await apiClient.delete(`/sessions/${sessionId}`);
+};
 
 // Получить все свайпы/лайки в рамках одной сессии
-export async function fetchSwipesForSession(sessionId) {
-  const response = await fetch(`${BASE_URL}/swipes/session/${sessionId}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch swipes');
-  }
-  return response.json();
-}
+export const fetchSwipesForSession = async (sessionId) => {
+  const response = await apiClient.get(`/swipes/session/${sessionId}`);
+  return response.data;
+};
 
 // Отправить лайк или дизлайк
-export async function sendSwipe(sessionId, cardId, liked) {
-  const response = await fetch(`${BASE_URL}/swipes/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      session_id: sessionId,
-      card_id: cardId,
-      user_id: null, // или ваш userId
-      liked: liked
-    })
+export const sendSwipe = async (sessionId, cardId, liked) => {
+  const response = await apiClient.post("/swipes/", {
+    session_id: sessionId,
+    card_id: cardId,
+    user_id: null, // или ваш userId
+    liked: liked,
   });
-  if (!response.ok) {
-    throw new Error('Failed to send swipe');
-  }
-  return response.json();
-}
+  return response.data;
+};

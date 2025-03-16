@@ -1,60 +1,30 @@
-const BASE_URL = 'http://127.0.0.1:8000';
+import apiClient from "./apiClient";
 
 // Получить список всех досок
-export async function fetchBoards() {
-  const response = await fetch(`${BASE_URL}/boards`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch boards');
-  }
-  return response.json();
-}
+export const fetchBoards = async () => {
+  const response = await apiClient.get("/boards");
+  return response.data;
+};
 
 // Создать новую доску
-export async function createBoard(data) {
-  const response = await fetch(`${BASE_URL}/boards/`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-  if (!response.ok) {
-    throw new Error('Failed to create board');
-  }
-  return response.json();
-}
+export const createBoard = async (data) => {
+  const response = await apiClient.post("/boards/", data);
+  return response.data;
+};
 
 // Удалить доску
-export async function deleteBoard(boardId) {
-  const response = await fetch(`${BASE_URL}/boards/${boardId}`, {
-    method: 'DELETE'
-  });
-  if (!response.ok) {
-    throw new Error('Failed to delete board');
-  }
-  return response.text();
-}
+export const deleteBoard = async (boardId) => {
+  await apiClient.delete(`/boards/${boardId}`);
+};
 
 // Обновить доску
-export async function updateBoard(boardId, data) {
-  const response = await fetch(`${BASE_URL}/boards/${boardId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-  });
-  if (!response.ok) {
-    throw new Error('Failed to update board');
-  }
-  return response.json();
-}
+export const updateBoard = async (boardId, data) => {
+  const response = await apiClient.put(`/boards/${boardId}`, data);
+  return response.data;
+};
 
 // Получить детали конкретной доски
-export async function fetchBoard(boardId) {
-  const response = await fetch(`${BASE_URL}/boards/${boardId}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch board detail');
-  }
-  return response.json();
-}
+export const fetchBoard = async (boardId) => {
+  const response = await apiClient.get(`/boards/${boardId}`);
+  return response.data;
+};

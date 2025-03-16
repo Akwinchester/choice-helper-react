@@ -1,76 +1,36 @@
-const BASE_URL = 'http://127.0.0.1:8000';
+import apiClient from "./apiClient";
 
 // Получить карточки конкретной доски
-export async function fetchCards(boardId) {
-  const response = await fetch(`${BASE_URL}/boards/${boardId}/cards`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch cards');
-  }
-  return response.json();
-}
+export const fetchCards = async (boardId) => {
+  const response = await apiClient.get(`/boards/${boardId}/cards`);
+  return response.data;
+};
 
 // Создать новую карточку
-export async function createCard(formData) {
-  const response = await fetch(`${BASE_URL}/cards/`, {
-    method: 'POST',
-    body: formData, // Передаем FormData напрямую
+export const createCard = async (formData) => {
+  const response = await apiClient.post("/cards/", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
-
-  if (!response.ok) {
-    throw new Error('Failed to create card');
-  }
-
-  return response.json(); // ✅ Return теперь внутри функции
-}
+  return response.data;
+};
 
 // Привязать уже созданную карточку к доске
-export async function attachCardToBoard(boardId, cardId) {
-  console.log("attachCardToBoard boardId:", boardId);
-  console.log("attachCardToBoard cardId:", cardId);
-
-  if (!boardId || typeof boardId !== "string") {
-    console.error("Ошибка: boardId должен быть строкой!", boardId);
-    return;
-  }
-
-  const response = await fetch(`${BASE_URL}/boards/${boardId}/cards/`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ card_id: cardId }),
+export const attachCardToBoard = async (boardId, cardId) => {
+  const response = await apiClient.post(`/boards/${boardId}/cards/`, {
+    card_id: cardId,
   });
-
-  if (!response.ok) {
-    throw new Error('Failed to attach card to board');
-  }
-
-  return response.json();
-}
+  return response.data;
+};
 
 // Обновить карточку
-export async function updateCard(cardId, formData) {
-  console.log("Отправляем обновленные данные:", Object.fromEntries(formData.entries())); // 🔍 Логируем перед отправкой
-
-  const response = await fetch(`${BASE_URL}/cards/${cardId}`, {
-    method: "PUT",
-    body: formData, // ✅ Отправляем FormData
+export const updateCard = async (cardId, formData) => {
+  const response = await apiClient.put(`/cards/${cardId}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
   });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => null);
-    console.error("Ошибка сервера:", errorData);
-    throw new Error("Ошибка обновления карточки");
-  }
-
-  return response.json();
-}
+  return response.data;
+};
 
 // Удалить карточку
-export async function deleteCard(cardId) {
-  const response = await fetch(`${BASE_URL}/cards/${cardId}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw new Error("Ошибка удаления карточки");
-  }
-}
+export const deleteCard = async (cardId) => {
+  await apiClient.delete(`/cards/${cardId}`);
+};
