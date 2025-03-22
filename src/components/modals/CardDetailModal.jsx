@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Modal from "./Modal";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import "./CardDetailModal.css";
+import "../../styles/modals/CardDetailModal.css";
 
 function CardDetailModal({ isOpen, onClose, card, onUpdateCard, onDeleteCard, onCardUpdated }) {
   const [isEditing, setIsEditing] = useState(false);

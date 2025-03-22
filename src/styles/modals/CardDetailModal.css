@@ -1,0 +1,22 @@
+.card-view {
+    text-align: center;
+  }
+  
+  .card-view img {
+    width: 100%;
+    max-height: 250px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  .edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .delete-button {
+    /* уже вынесен как .button.red */
+  }
+  

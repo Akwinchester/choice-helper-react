@@ -1,6 +1,6 @@
 // src/components/Modal.jsx
 import React from 'react';
-import './Modal.css'; // Для оформления модального окна
+import '../../styles/modals/ModalCommon.css'; // Для оформления модального окна
 
 function Modal({ isOpen, onClose, children }) {
   if (!isOpen) return null; // Если окно закрыто, ничего не рендерим

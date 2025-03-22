@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Modal from "./Modal";
 import CardDetailModal from "./CardDetailModal";
-import SessionModal from "../SessionModal"; // ✅ Импортируем модалку сессии
+import SessionModal from "./SessionModal"; // ✅ Импортируем модалку сессии
 import { updateCard } from "../../api/cardsApi"; // Импортируем API для обновления
-import "./BoardDetailModal.css";
+import "../../styles/modals/BoardDetailModal.css";
 
 function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, onOpenAddCardModal }) {
   const [selectedCard, setSelectedCard] = useState(null);

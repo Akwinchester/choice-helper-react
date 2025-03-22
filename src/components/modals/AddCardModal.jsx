@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Modal from "./Modal";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import "./AddCardModal.css";
+import "../../styles/modals/AddCardModal.css";
 
 function AddCardModal({ isOpen, onClose, onCreateCard }) {
   const [cardText, setCardText] = useState("");
