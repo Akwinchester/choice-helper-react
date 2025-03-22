@@ -92,7 +92,9 @@ function BoardsPage() {
         isOpen={isEditModalOpen}
         onClose={() => closeEditModal(setIsEditModalOpen, setBoardToEdit)}
         boardToEdit={boardToEdit}
-        onUpdateBoard={updateBoardMutation.mutate}
+        onUpdateBoard={(boardId, data) =>
+          updateBoardMutation.mutate({ boardId, data })
+        }
       />
 
       <BoardDetailModal

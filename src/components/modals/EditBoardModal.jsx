@@ -2,31 +2,31 @@
 import React, { useState, useEffect } from 'react';
 import Modal from './Modal';
 
-function EditBoardModal({ 
-  isOpen, 
-  onClose, 
-  boardToEdit, // объект { id, title, description }
-  onUpdateBoard 
-}) {
-  // Локальное состояние полей (изначально берем из boardToEdit)
+function EditBoardModal({ isOpen, onClose, boardToEdit, onUpdateBoard }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
 
-  // При открытии/закрытии модалки заполняем/сбрасываем данные
   useEffect(() => {
+    console.log("🔍 boardToEdit:", boardToEdit); // лог
     if (isOpen && boardToEdit) {
-      setTitle(boardToEdit.title);
-      setDescription(boardToEdit.description);
+      setTitle(boardToEdit.title || '');
+      setDescription(boardToEdit.description || '');
     } else {
       setTitle('');
       setDescription('');
     }
   }, [isOpen, boardToEdit]);
 
-  // Сабмит формы
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
+    
+    console.log("📤 Пытаемся обновить доску:", boardToEdit.id); // лог
+    if (!boardToEdit?.id) {
+      alert("❌ Ошибка: boardToEdit.id не задан!");
+      return;
+    }
+
     onUpdateBoard(boardToEdit.id, { title, description });
   };
 
