@@ -1,101 +1,86 @@
-/* main.css */
-
-/* Базовые стили страницы */
+/* === Базовые стили страницы === */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f9;
-}
-
-.container {
+  }
+  
+  .container {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
     background: #fff;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-h1 {
+  }
+  
+  h1 {
     text-align: center;
-}
-
-/* Общие стили для кнопок */
-button {
-    display: inline-block;
+  }
+  
+  /* === Общие компоненты === */
+  
+  /* Кнопки */
+  .button {
     padding: 10px 15px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.3s, opacity 0.2s;
-}
-
-button:hover {
-    opacity: 0.8;
-}
-
-/* Кнопки для загрузки и добавления досок */
-loadBoards {
-    background: #007BFF;
-    color: white;
-    display: block;
-    width: 100%;
     text-align: center;
-    margin-bottom: 20px;
-}
-
-addBoardButton {
-    background: #007BFF;
-    color: white;
-    display: block;
-    width: 100%;
-    text-align: center;
-    padding: 10px 15px;
+  }
+  
+  .button.green { background-color: #4CAF50; color: white; }
+  .button.green:hover { background-color: #45a049; }
+  
+  .button.blue { background-color: #007BFF; color: white; }
+  .button.blue:hover { background-color: #0056b3; }
+  
+  .button.red { background-color: #ff4d4d; color: white; }
+  .button.red:hover { background-color: #cc0000; }
+  
+  .button.gray { background-color: #ccc; }
+  .button.gray:hover { background-color: #bbb; }
+  
+  /* Поля ввода */
+  .input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     font-size: 16px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    transition: background 0.3s, opacity 0.2s;
-}
-
-addBoardButton:hover {
-    background: #007BFF;
-    opacity: 0.8;
-}
-
-/* Заголовок в модальных окнах */
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     width: 100%;
-}
-
-/* Кнопки внутри модальных окон */
-.modal-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.modal-buttons button {
-    padding: 8px 12px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007BFF;
-    color: white;
-    cursor: pointer;
+    box-sizing: border-box;
+  }
+  
+  .input.small {
     font-size: 14px;
-}
-
-.modal-buttons button:hover {
-    background-color: #0056b3;
-}
-
-/* Общие стили для всех модальных окон */
-.modal {
+    padding: 8px;
+  }
+  
+  /* Центровка */
+  .center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .column {
+    flex-direction: column;
+  }
+  
+  /* Контейнер карточки / блока */
+  .card-box {
+    background: #fff;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  /* Модальные окна */
+  .modal {
     display: none;
     position: fixed;
     top: 0;
@@ -105,149 +90,40 @@ addBoardButton:hover {
     background: rgba(0, 0, 0, 0.5);
     justify-content: center;
     align-items: center;
-}
-
-.modal-content {
+  }
+  
+  .modal-content {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
-    width: 95%; /* Увеличиваем ширину */
-    max-width: 700px; /* Ранее было 500px, теперь больше */
-    max-height: 90vh; /* Чтобы окно не выходило за границы экрана */
-    overflow-y: auto; /* Добавляем прокрутку */
-}
-
-.modal-content form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.modal-content form label {
-    font-weight: bold;
-}
-
-.modal-content form input,
-.modal-content form textarea {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    width: 100%;
-}
-
-.modal-content form button {
-    padding: 10px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 16px;
-    text-align: center;
-}
-
-/* Кнопка "Открыть добавление карточки" */
-#openAddCardModal {
-    display: block;
-    margin: 20px auto; /* Добавляет отступ сверху и центрирует кнопку */
-    width: fit-content;
-    padding: 10px 15px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    text-align: center;
-}
-
-#openAddCardModal:hover {
-    background-color: #0056b3;
-}
-
-/* Кнопка закрытия (иконка "×") */
-.close {
-    float: right;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-/* Модальное окно для добавления карточки */
-#addCardModal .modal-content {
-    width: 90%;
-    max-width: 500px;
-    padding: 15px;
-    overflow-x: hidden; /* Убираем горизонтальную прокрутку */
-    box-sizing: border-box; /* Учитываем padding в ширине */
-}
-
-#addCardModal h2 {
-    font-size: 20px;
-    margin-bottom: 10px;
-}
-
-/* Форма добавления карточки */
-#addCardForm {
-    display: flex;
-    flex-direction: column;
-    gap: 12px; /* Уменьшаем отступы между элементами */
-}
-
-#addCardForm label {
-    font-size: 14px;
-    font-weight: bold;
-}
-
-#addCardForm input,
-#addCardForm textarea {
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-}
-
-#addCardForm textarea {
-    min-height: 80px; /* Делаем поле описания компактнее */
-    resize: vertical; /* Разрешаем изменять размер */
-}
-
-#addCardForm button {
-    padding: 10px;
-    font-size: 16px;
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-#addCardForm button:hover {
-    background-color: #0056b3;
-}
-
-.header {
+    width: 95%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  
+  .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
   }
   
-  .logout-button {
-    background-color: #ff4d4d;
-    color: white;
+  .modal-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .modal-buttons button {
+    padding: 8px 12px;
     border: none;
-    padding: 10px 12px;
     border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
     cursor: pointer;
     font-size: 14px;
-    transition: background-color 0.2s;
   }
   
-  .logout-button:hover {
-    background-color: #cc0000;
+  .modal-buttons button:hover {
+    background-color: #0056b3;
   }
   

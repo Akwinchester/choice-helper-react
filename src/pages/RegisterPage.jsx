@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/RegisterPage.css"; // Подключаем стили
+import "../styles/RegisterPage.css"; // оставим только layout-классы
 import { registerUser } from "../api/register";
 import { useNavigate } from "react-router-dom";
 
@@ -10,16 +10,16 @@ const RegisterPage = () => {
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Предотвращаем перезагрузку страницы
+    event.preventDefault();
 
-    const data = { username, email, password }; // Формируем объект с данными
+    const data = { username, email, password };
 
     try {
       const dataRes = await registerUser(data);
       console.log("dataRes", dataRes);
 
       if (dataRes?.id) {
-        navigate("/login"); // Перенаправляем на страницу логина после успешной регистрации
+        navigate("/login");
       }
     } catch (error) {
       console.error("Ошибка регистрации:", error);
@@ -35,7 +35,7 @@ const RegisterPage = () => {
           placeholder="Введите имя пользователя"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="input-field"
+          className="input"
           required
           autoComplete="off"
         />
@@ -44,7 +44,7 @@ const RegisterPage = () => {
           placeholder="Введите email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="input-field"
+          className="input"
           required
           autoComplete="off"
         />
@@ -53,14 +53,14 @@ const RegisterPage = () => {
           placeholder="Введите пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="input-field"
+          className="input"
           required
           autoComplete="new-password"
         />
-        <button type="submit" className="register-button">Зарегистрироваться</button>
+        <button type="submit" className="button green">Зарегистрироваться</button>
       </form>
       <p>Уже есть аккаунт?</p>
-      <button className="login-button" onClick={() => navigate("/login")}>Войти</button>
+      <button className="button blue" onClick={() => navigate("/login")}>Войти</button>
     </div>
   );
 };

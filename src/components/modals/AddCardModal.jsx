@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Modal from "./Modal";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import "../../styles/modals/AddCardModal.css";
+import "../../styles/modals/AddCardModal.css"; // Оставляем только уникальные стили
 
 function AddCardModal({ isOpen, onClose, onCreateCard }) {
   const [cardText, setCardText] = useState("");
@@ -58,7 +58,6 @@ function AddCardModal({ isOpen, onClose, onCreateCard }) {
       formData.append("image", originalFile, originalFile.name);
     }
 
-    // 🔍 Логируем данные перед отправкой
     console.log("📤 Отправляем данные:", Object.fromEntries(formData.entries()));
 
     try {
@@ -73,17 +72,19 @@ function AddCardModal({ isOpen, onClose, onCreateCard }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2>Создание новой карточки</h2>
-      <form className="add-card-form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Название карточки"
           value={cardText}
           onChange={(e) => setCardText(e.target.value)}
+          className="input"
         />
         <textarea
           placeholder="Описание"
           value={cardDesc}
           onChange={(e) => setCardDesc(e.target.value)}
+          className="input"
         />
         <input type="file" accept="image/*" onChange={handleImageChange} />
 
@@ -101,7 +102,7 @@ function AddCardModal({ isOpen, onClose, onCreateCard }) {
           </div>
         )}
 
-        <button type="submit">Сохранить</button>
+        <button type="submit" className="button green">Сохранить</button>
       </form>
     </Modal>
   );

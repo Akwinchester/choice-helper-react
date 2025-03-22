@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import Modal from "./Modal";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import "../../styles/modals/CardDetailModal.css";
+import "../../styles/modals/CardDetailModal.css"; // оставим уникальное
 
 function CardDetailModal({ isOpen, onClose, card, onUpdateCard, onDeleteCard, onCardUpdated }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -58,8 +58,6 @@ function CardDetailModal({ isOpen, onClose, card, onUpdateCard, onDeleteCard, on
 
     try {
       const updatedCard = await onUpdateCard(card.id, formData);
-      
-      // 🔄 Обновляем карточку без закрытия модалки
       onCardUpdated(updatedCard);
       setIsEditing(false);
     } catch (error) {
@@ -100,9 +98,18 @@ function CardDetailModal({ isOpen, onClose, card, onUpdateCard, onDeleteCard, on
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2>Детали карточки</h2>
       {isEditing ? (
-        <div className="edit-form">
-          <input type="text" value={editedText} onChange={(e) => setEditedText(e.target.value)} />
-          <textarea value={editedDesc} onChange={(e) => setEditedDesc(e.target.value)} />
+        <div className="form">
+          <input
+            type="text"
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            className="input"
+          />
+          <textarea
+            value={editedDesc}
+            onChange={(e) => setEditedDesc(e.target.value)}
+            className="input"
+          />
           <input type="file" accept="image/*" onChange={handleImageChange} />
 
           {cardImage && (
@@ -114,20 +121,31 @@ function CardDetailModal({ isOpen, onClose, card, onUpdateCard, onDeleteCard, on
                 keepSelection
                 aspect={300 / 400}
               >
-                <img ref={imageRef} src={cardImage} alt="Выбор области" className="full-size-image" />
+                <img
+                  ref={imageRef}
+                  src={cardImage}
+                  alt="Выбор области"
+                  className="full-size-image"
+                />
               </ReactCrop>
             </div>
           )}
 
-          <button onClick={handleSave}>Сохранить</button>
-          <button onClick={() => setIsEditing(false)}>Отмена</button>
+          <button onClick={handleSave} className="button green">Сохранить</button>
+          <button onClick={() => setIsEditing(false)} className="button gray">Отмена</button>
         </div>
       ) : (
-        <div className="card-view">
-          {card.image_url && <img src={`http://127.0.0.1:8000/${card.image_url}`} alt={card.text} />}
+        <div className="card-view centered">
+          {card.image_url && (
+            <img
+              src={`http://127.0.0.1:8000/${card.image_url}`}
+              alt={card.text}
+              className="img-cover"
+            />
+          )}
           <h3>{card.text}</h3>
           <p>{card.short_description}</p>
-          <button onClick={() => setIsEditing(true)}>Редактировать</button>
+          <button onClick={() => setIsEditing(true)} className="button blue">Редактировать</button>
           <button
             onClick={() => {
               if (window.confirm("Вы уверены, что хотите удалить эту карточку?")) {
@@ -135,7 +153,7 @@ function CardDetailModal({ isOpen, onClose, card, onUpdateCard, onDeleteCard, on
                 onClose();
               }
             }}
-            className="delete-button"
+            className="button red"
           >
             Удалить
           </button>

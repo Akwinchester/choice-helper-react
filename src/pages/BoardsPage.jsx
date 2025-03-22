@@ -61,10 +61,10 @@ function BoardsPage() {
       {/* Контейнер для заголовка и кнопки выхода */}
       <div className="header">
         <h1>Доски</h1>
-        <button className="logout-button" onClick={handleLogout}>Выйти</button>
+        <button className="button red logout-button" onClick={handleLogout}>Выйти</button>
       </div>
 
-      <button onClick={() => setIsCreateModalOpen(true)}>Создать доску</button>
+      <button className="button blue" onClick={() => setIsCreateModalOpen(true)}>Создать доску</button>
 
       <ul className="boards-list">
         {boards?.map((board) => (
@@ -72,7 +72,7 @@ function BoardsPage() {
             <div>
               <strong>{board.title}</strong> - {board.description}
             </div>
-            <button style={{ marginRight: "8px" }} onClick={(e) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}>
+            <button  className="icon-button edit" onClick={(e) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}>
               Редактировать
             </button>
             <button className="icon-button delete" onClick={(e) => handleDeleteBoard(e, board.id, deleteBoardMutation)}>

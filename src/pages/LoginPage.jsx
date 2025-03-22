@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/LoginPage.css"; // Подключаем стили
+import "../styles/LoginPage.css"; // Здесь оставим только layout (контейнеры)
 import { loginUser } from "../api/login";
 import { useNavigate } from "react-router-dom";
 
@@ -9,16 +9,16 @@ const LoginPage = ({ onLogin }) => {
   const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
-    event.preventDefault(); // Предотвращаем перезагрузку страницы
+    event.preventDefault();
 
-    const data = { username, password }; // Формируем объект с данными
+    const data = { username, password };
 
     try {
       const dataRes = await loginUser(data);
       console.log("dataRes", dataRes);
 
       if (dataRes?.access_token) {
-        navigate("/"); // Навигация при успешном логине
+        navigate("/");
       }
     } catch (error) {
       console.error("Ошибка входа:", error);
@@ -34,7 +34,7 @@ const LoginPage = ({ onLogin }) => {
           placeholder="Введите имя пользователя"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="input-field"
+          className="input"
           required
           autoComplete="username"
         />
@@ -43,14 +43,16 @@ const LoginPage = ({ onLogin }) => {
           placeholder="Введите пароль"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="input-field"
+          className="input"
           required
           autoComplete="current-password"
         />
-        <button type="submit" className="login-button">Войти</button>
+        <button type="submit" className="button green">Войти</button>
       </form>
       <p>Нет аккаунта?</p>
-      <button className="register-button" onClick={() => navigate("/register")}>Зарегистрироваться</button>
+      <button className="button blue" onClick={() => navigate("/register")}>
+        Зарегистрироваться
+      </button>
     </div>
   );
 };

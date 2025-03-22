@@ -7,7 +7,7 @@ function EditBoardModal({ isOpen, onClose, boardToEdit, onUpdateBoard }) {
   const [description, setDescription] = useState('');
 
   useEffect(() => {
-    console.log("🔍 boardToEdit:", boardToEdit); // лог
+    console.log("🔍 boardToEdit:", boardToEdit);
     if (isOpen && boardToEdit) {
       setTitle(boardToEdit.title || '');
       setDescription(boardToEdit.description || '');
@@ -20,8 +20,8 @@ function EditBoardModal({ isOpen, onClose, boardToEdit, onUpdateBoard }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!title.trim()) return;
-    
-    console.log("📤 Пытаемся обновить доску:", boardToEdit.id); // лог
+
+    console.log("📤 Пытаемся обновить доску:", boardToEdit.id);
     if (!boardToEdit?.id) {
       alert("❌ Ошибка: boardToEdit.id не задан!");
       return;
@@ -33,19 +33,21 @@ function EditBoardModal({ isOpen, onClose, boardToEdit, onUpdateBoard }) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <h2>Редактировать доску</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="form">
         <input
           type="text"
           placeholder="Название доски"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          className="input"
         />
         <textarea
           placeholder="Описание доски"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          className="input"
         />
-        <button type="submit">Сохранить</button>
+        <button type="submit" className="button green">Сохранить</button>
       </form>
     </Modal>
   );

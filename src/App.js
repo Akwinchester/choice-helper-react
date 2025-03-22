@@ -4,6 +4,7 @@ import BoardsPage from './pages/BoardsPage';
 import BoardDetailPage from './pages/BoardDetailPage';
 import SessionPage from './pages/SessionPage';
 import './App.css';
+import './styles/main.css';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
