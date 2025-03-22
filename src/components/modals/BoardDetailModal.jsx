@@ -2,24 +2,22 @@ import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Modal from "./Modal";
 import CardDetailModal from "./CardDetailModal";
-import SessionModal from "./SessionModal"; // ✅ Импортируем модалку сессии
-import { updateCard } from "../../api/cardsApi"; // Импортируем API для обновления
+import SessionModal from "./SessionModal";
+import { updateCard } from "../../api/cardsApi";
 import "../../styles/modals/BoardDetailModal.css";
 
 function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, onOpenAddCardModal }) {
   const [selectedCard, setSelectedCard] = useState(null);
-  const [isSessionOpen, setIsSessionOpen] = useState(false); // ✅ Состояние для сессии
+  const [isSessionOpen, setIsSessionOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // ✅ useMutation вызывается на верхнем уровне
   const updateCardMutation = useMutation({
     mutationFn: ({ cardId, formData }) => updateCard(cardId, formData),
     onSuccess: () => {
-      queryClient.invalidateQueries(["cards", boardDetail?.id]); // Обновляем список карточек
+      queryClient.invalidateQueries(["cards", boardDetail?.id]);
     },
   });
 
-  // ✅ Передаем функцию обновления карточки
   const handleUpdateCard = (cardId, formData) => {
     updateCardMutation.mutate({ cardId, formData });
   };
@@ -37,13 +35,16 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
           {cards.map((card) => (
             <div key={card.id} className="card-item" onClick={() => setSelectedCard(card)}>
               {card.image_url ? (
-                <img src={`http://127.0.0.1:8000/${card.image_url}`} alt={card.text} className="card-image" />
+                <img
+                  src={`http://127.0.0.1:8000/${card.image_url}`}
+                  alt={card.text}
+                  className="card-image"
+                />
               ) : (
                 <div className="no-image">Нет изображения</div>
               )}
               <div className="card-text">
                 <strong>{card.text}</strong>
-                <p>{card.short_description}</p>
               </div>
             </div>
           ))}
@@ -52,7 +53,6 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
         <p>Пока нет карточек</p>
       )}
 
-      {/* Контейнер кнопок */}
       <div className="modal-buttons">
         <button className="modal-button" onClick={onOpenAddCardModal}>
           Добавить карточку
@@ -62,22 +62,19 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
         </button>
       </div>
 
-      {/* Модалка карточки */}
       {selectedCard && (
         <CardDetailModal
-        isOpen={!!selectedCard}
-        onClose={() => setSelectedCard(null)}
-        card={selectedCard}
-        onUpdateCard={handleUpdateCard} 
-        onDeleteCard={onDeleteCard}
-        onCardUpdated={(updatedCard) => {
-          // 🔄 Обновляем карточку в локальном состоянии
-          setSelectedCard(updatedCard);
-        }}
-      />
+          isOpen={!!selectedCard}
+          onClose={() => setSelectedCard(null)}
+          card={selectedCard}
+          onUpdateCard={handleUpdateCard}
+          onDeleteCard={onDeleteCard}
+          onCardUpdated={(updatedCard) => {
+            setSelectedCard(updatedCard);
+          }}
+        />
       )}
 
-      {/* Модалка сессии */}
       {isSessionOpen && (
         <SessionModal isOpen={isSessionOpen} onClose={() => setIsSessionOpen(false)} cards={cards} />
       )}

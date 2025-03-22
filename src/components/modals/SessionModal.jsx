@@ -51,23 +51,33 @@ function SessionModal({ isOpen, onClose, cards }) {
           
           <div className="session-card">
             {cards[currentIndex].image_url && (
-              <img src={`http://127.0.0.1:8000/${cards[currentIndex].image_url}`} alt={cards[currentIndex].text} />
+              <img
+                src={`http://127.0.0.1:8000/${cards[currentIndex].image_url}`}
+                alt={cards[currentIndex].text}
+                className="session-image"
+              />
             )}
-            <h3>{cards[currentIndex].text}</h3>
-            <p>{cards[currentIndex].short_description}</p>
+            <h3 className="session-title">{cards[currentIndex].text}</h3>
+            <p className="session-desc">{cards[currentIndex].short_description}</p>
           </div>
 
           <button className="arrow-button right" onClick={() => handleSwipe('right')}>→</button>
         </div>
       ) : (
-        <div>
+        <div className="session-end">
           <h3>Сессия завершена!</h3>
           <h4>Лайкнутые карточки:</h4>
           {likedCards.length > 0 ? (
             <div className="liked-gallery">
               {likedCards.map((card) => (
                 <div key={card.id} className="liked-card">
-                  {card.image_url && <img src={`http://127.0.0.1:8000/${card.image_url}`} alt={card.text} />}
+                  {card.image_url && (
+                    <img
+                      src={`http://127.0.0.1:8000/${card.image_url}`}
+                      alt={card.text}
+                      className="liked-image"
+                    />
+                  )}
                   <strong>{card.text}</strong>
                 </div>
               ))}
@@ -75,7 +85,7 @@ function SessionModal({ isOpen, onClose, cards }) {
           ) : (
             <p>Вы не лайкнули ни одной карточки.</p>
           )}
-          <button className="end-session" onClick={onClose}>Закончить сессию</button>
+          <button className="button green" onClick={onClose}>Закончить сессию</button>
         </div>
       )}
     </Modal>

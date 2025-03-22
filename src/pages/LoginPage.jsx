@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/LoginPage.css"; // Здесь оставим только layout (контейнеры)
-import { loginUser } from "../api/login";
+import { loginUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = ({ onLogin }) => {

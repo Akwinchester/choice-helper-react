@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "../styles/RegisterPage.css"; // оставим только layout-классы
-import { registerUser } from "../api/register";
+import { registerUser } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
