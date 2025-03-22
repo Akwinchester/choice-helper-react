@@ -1,5 +1,8 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useBoards } from "../hooks/useBoards";
+import { logoutUser } from "../api/logout"; // ✅ Импортируем API выхода
+
 import {
   openEditModal,
   closeEditModal,
@@ -40,10 +43,26 @@ function BoardsPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  
+  const navigate = useNavigate();
+
+  // Функция выхода
+  const handleLogout = async () => {
+    try {
+      await logoutUser(); // ✅ Вызываем API выхода
+      navigate("/login"); // Перенаправление на страницу авторизации
+    } catch (error) {
+      console.error("Ошибка при выходе:", error);
+    }
+  };
 
   return (
     <div className="container">
-      <h1>Доски</h1>
+      {/* Контейнер для заголовка и кнопки выхода */}
+      <div className="header">
+        <h1>Доски</h1>
+        <button className="logout-button" onClick={handleLogout}>Выйти</button>
+      </div>
 
       <button onClick={() => setIsCreateModalOpen(true)}>Создать доску</button>
 

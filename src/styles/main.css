@@ -228,3 +228,26 @@ addBoardButton:hover {
 #addCardForm button:hover {
     background-color: #0056b3;
 }
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .logout-button {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+  }
+  
+  .logout-button:hover {
+    background-color: #cc0000;
+  }
+  
