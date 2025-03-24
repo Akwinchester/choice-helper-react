@@ -1,38 +1,57 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Modal from './Modal';
+import { createSession, deleteSession } from '../../api/sessionsApi';
 import '../../styles/modals/SessionModal.css';
 
-function SessionModal({ isOpen, onClose, cards }) {
+function SessionModal({ isOpen, onClose, cards = [], boardId }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [likedCards, setLikedCards] = useState([]);
+  const [sessionId, setSessionId] = useState(null);
+  const sessionCreated = useRef(false); // 👈 флаг, чтобы избежать дублирования
 
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.key === 'ArrowRight') {
-        handleSwipe('right');
-      } else if (event.key === 'ArrowLeft') {
-        handleSwipe('left');
-      }
-    };
-
-    if (isOpen) {
-      window.addEventListener('keydown', handleKeyDown);
+    if (isOpen && boardId && !sessionCreated.current) {
+      sessionCreated.current = true; // 👈 создаём только один раз
+      createSession(boardId)
+        .then((data) => {
+          setSessionId(data.id);
+        })
+        .catch((err) => {
+          console.error("Ошибка при создании сессии:", err);
+        });
     }
 
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isOpen, currentIndex, likedCards]);
+    // Очистка флага при закрытии модалки
+    if (!isOpen) {
+      sessionCreated.current = false;
+      setSessionId(null);
+      setCurrentIndex(0);
+      setLikedCards([]);
+    }
+  }, [isOpen, boardId]);
 
   const handleSwipe = (direction) => {
     if (direction === 'right') {
       setLikedCards([...likedCards, cards[currentIndex]]);
     }
+
     if (currentIndex + 1 < cards.length) {
       setCurrentIndex(currentIndex + 1);
     } else {
       setCurrentIndex(null);
     }
+  };
+
+  const handleFinishSession = async () => {
+    try {
+      if (sessionId) {
+        await deleteSession(sessionId);
+        setSessionId(null);
+      }
+    } catch (err) {
+      console.error("❌ Ошибка при удалении сессии:", err);
+    }
+    onClose();
   };
 
   if (!cards || cards.length === 0) {
@@ -48,7 +67,7 @@ function SessionModal({ isOpen, onClose, cards }) {
       {currentIndex !== null ? (
         <div className="session-card-container">
           <button className="arrow-button left" onClick={() => handleSwipe('left')}>←</button>
-          
+
           <div className="session-card">
             {cards[currentIndex].image_url && (
               <img
@@ -85,7 +104,7 @@ function SessionModal({ isOpen, onClose, cards }) {
           ) : (
             <p>Вы не лайкнули ни одной карточки.</p>
           )}
-          <button className="button green" onClick={onClose}>Закончить сессию</button>
+          <button className="button green" onClick={handleFinishSession}>Закончить сессию</button>
         </div>
       )}
     </Modal>

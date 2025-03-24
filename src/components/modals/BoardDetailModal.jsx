@@ -76,7 +76,12 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
       )}
 
       {isSessionOpen && (
-        <SessionModal isOpen={isSessionOpen} onClose={() => setIsSessionOpen(false)} cards={cards} />
+        <SessionModal
+          isOpen={isSessionOpen}
+          onClose={() => setIsSessionOpen(false)}
+          cards={cards}
+          boardId={boardDetail.id} // ✅ передаём boardId для создания сессии
+        />
       )}
     </Modal>
   );
