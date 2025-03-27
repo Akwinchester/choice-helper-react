@@ -9,10 +9,10 @@ export const createSession = async (boardId, sessionType = "individual") => {
   return response.data;
 };
 
-// Удалить сессию
-export const deleteSession = async (sessionId) => {
-  await apiClient.delete(`/sessions/${sessionId}`);
-};
+//// Удалить сессию
+//export const deleteSession = async (sessionId) => {
+//  await apiClient.delete(`/sessions/${sessionId}`);
+//};
 
 // Получить все свайпы/лайки в рамках одной сессии
 export const fetchSwipesForSession = async (sessionId) => {
@@ -29,4 +29,15 @@ export const sendSwipe = async (sessionId, cardId, liked) => {
     liked: liked,
   });
   return response.data;
+};
+
+// Получить список сессий по board_id
+export const fetchSessionsByBoard = async (boardId) => {
+  const response = await apiClient.get(`/sessions/by-board/${boardId}`);
+  return response.data;
+};
+
+// Удалить сессию по id
+export const deleteSession = async (sessionId) => {
+  await apiClient.delete(`/sessions/${sessionId}`);
 };

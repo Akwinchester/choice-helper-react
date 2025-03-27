@@ -1,14 +1,17 @@
+// src/components/modals/BoardDetailModal.jsx
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Modal from "./Modal";
 import CardDetailModal from "./CardDetailModal";
 import SessionModal from "./SessionModal";
+import BoardSessionsModal from "./BoardSessionsModal";
 import { updateCard } from "../../api/cardsApi";
 import "../../styles/modals/BoardDetailModal.css";
 
 function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, onOpenAddCardModal }) {
   const [selectedCard, setSelectedCard] = useState(null);
   const [isSessionOpen, setIsSessionOpen] = useState(false);
+  const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
   const updateCardMutation = useMutation({
@@ -60,6 +63,9 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
         <button className="modal-button" onClick={() => setIsSessionOpen(true)}>
           Начать сессию
         </button>
+        <button className="modal-button" onClick={() => setIsSessionsModalOpen(true)}>
+          Сессии этой доски
+        </button>
       </div>
 
       {selectedCard && (
@@ -80,7 +86,15 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
           isOpen={isSessionOpen}
           onClose={() => setIsSessionOpen(false)}
           cards={cards}
-          boardId={boardDetail.id} // ✅ передаём boardId для создания сессии
+          boardId={boardDetail.id}
+        />
+      )}
+
+      {isSessionsModalOpen && (
+        <BoardSessionsModal
+          isOpen={isSessionsModalOpen}
+          onClose={() => setIsSessionsModalOpen(false)}
+          boardId={boardDetail.id}
         />
       )}
     </Modal>
