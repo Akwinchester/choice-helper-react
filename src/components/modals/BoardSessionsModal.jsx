@@ -1,12 +1,14 @@
 // src/components/modals/BoardSessionsModal.jsx
 import React, { useEffect, useState } from "react";
 import Modal from "./Modal";
+import SessionModal from "./SessionModal";
 import { fetchSessionsByBoard, deleteSession } from "../../api/sessionsApi";
 import "../../styles/modals/BoardSessionsModal.css";
 
 function BoardSessionsModal({ isOpen, onClose, boardId }) {
   const [sessions, setSessions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
 
   const loadSessions = async () => {
     setIsLoading(true);
@@ -39,31 +41,48 @@ function BoardSessionsModal({ isOpen, onClose, boardId }) {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <h2>Сессии этой доски</h2>
-      {isLoading ? (
-        <p>Загрузка...</p>
-      ) : sessions.length === 0 ? (
-        <p>Сессии пока не созданы.</p>
-      ) : (
-        <ul className="session-list">
-          {sessions.map((session) => (
-            <li key={session.id} className="session-item">
-              <div>
-                <strong>ID:</strong> {session.id}
-                <br />
-                <strong>Тип:</strong> {session.type}
-                <br />
-                <strong>Создана:</strong> {new Date(session.created_at).toLocaleString()}
-              </div>
-              <button className="button red" onClick={() => handleDelete(session.id)}>
-                Удалить
-              </button>
-            </li>
-          ))}
-        </ul>
+    <>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <h2>Сессии этой доски</h2>
+        {isLoading ? (
+          <p>Загрузка...</p>
+        ) : sessions.length === 0 ? (
+          <p>Сессии пока не созданы.</p>
+        ) : (
+          <ul className="session-list">
+            {sessions.map((session) => (
+              <li key={session.id} className="session-item">
+                <div className="session-info">
+                  <strong>Тип:</strong> {session.type}
+                  <br />
+                  <strong>Создана:</strong> {new Date(session.created_at).toLocaleString()}
+                </div>
+
+                <div className="session-actions">
+                  <button className="button blue" onClick={() => setSelectedSessionId(session.id)}>
+                    Открыть
+                  </button>
+                  <button className="button red" onClick={() => handleDelete(session.id)}>
+                    Удалить
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
+
+      {/* Модалка сессии для выбранной */}
+      {selectedSessionId && (
+        <SessionModal
+          isOpen={true}
+          onClose={() => setSelectedSessionId(null)}
+          boardId={boardId}
+          sessionId={selectedSessionId}
+          cards={[]} // будет загружено позже, если нужно — передай prop сверху
+        />
       )}
-    </Modal>
+    </>
   );
 }
 
