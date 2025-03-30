@@ -58,3 +58,37 @@ export async function createGroupSession(boardId, userIds) {
   if (!res.ok) throw new Error("Ошибка при создании групповой сессии");
   return await res.json();
 }
+
+export const fetchInvitedSessions = async () => {
+  const res = await fetch('http://127.0.0.1:8000/sessions/group/invited', {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Ошибка при загрузке приглашений");
+  return await res.json();
+};
+
+// Получить сессию по ID (для приглашённых)
+export const fetchSessionById = async (sessionId) => {
+  const res = await fetch(`http://127.0.0.1:8000/sessions/${sessionId}`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+  });
+  if (!res.ok) throw new Error("Ошибка загрузки данных сессии");
+  return await res.json();
+};
+
+export const completeSession = async (sessionId) => {
+  const res = await fetch(`http://127.0.0.1:8000/sessions/${sessionId}/complete`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+  });
+
+  if (!res.ok) throw new Error("Ошибка при завершении сессии");
+  return await res.json();
+};

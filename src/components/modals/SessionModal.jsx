@@ -1,91 +1,90 @@
-// src/components/modals/SessionModal.jsx
-import React, { useState, useEffect, useRef } from 'react';
-import Modal from './Modal';
+import React, { useState, useEffect, useRef } from "react";
+import Modal from "./Modal";
 import {
   createSession,
   deleteSession,
   sendSwipe,
   fetchSwipesForSession,
-} from '../../api/sessionsApi';
-import { fetchCards } from '../../api/cardsApi';
-import '../../styles/modals/SessionModal.css';
+  fetchSessionById,
+  completeSession,
+} from "../../api/sessionsApi";
+import { fetchCards } from "../../api/cardsApi";
+import { getUserInfo } from "../../api/auth";
+import "../../styles/modals/SessionModal.css";
 
-function SessionModal({ isOpen, onClose, boardId, sessionId: existingSessionId, cards: externalCards }) {
+function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
   const [cards, setCards] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(null);
   const [likedCards, setLikedCards] = useState([]);
-  const [sessionId, setSessionId] = useState(null);
+  const [internalSessionId, setInternalSessionId] = useState(null);
+  const [isCompleted, setIsCompleted] = useState(false);
   const sessionCreated = useRef(false);
-  const cardsLoaded = useRef(false);
-
-  const loadCards = async () => {
-    try {
-      const loaded = await fetchCards(boardId);
-      setCards(loaded);
-    } catch (err) {
-      console.error("❌ Ошибка при загрузке карточек:", err);
-    }
-  };
-
-  const loadSwipes = async (id, cardsList) => {
-    try {
-      const swipes = await fetchSwipesForSession(id);
-      const liked = swipes
-        .filter((s) => s.liked)
-        .map((s) => cardsList.find((c) => c.id === s.card_id))
-        .filter(Boolean);
-
-      setLikedCards(liked);
-
-      const swipedIds = swipes.map((s) => s.card_id);
-      const nextIndex = cardsList.findIndex((c) => !swipedIds.includes(c.id));
-      setCurrentIndex(nextIndex !== -1 ? nextIndex : null);
-    } catch (err) {
-      console.error("Ошибка при загрузке свайпов:", err);
-    }
-  };
 
   useEffect(() => {
     if (!isOpen) {
       sessionCreated.current = false;
-      cardsLoaded.current = false;
-      setSessionId(null);
+      setInternalSessionId(null);
       setCards([]);
-      setCurrentIndex(0);
+      setCurrentIndex(null);
       setLikedCards([]);
+      setIsCompleted(false);
       return;
     }
 
     const init = async () => {
-      // 1. Загружаем карточки если их не передали
-      const cardsToUse = externalCards && externalCards.length > 0 ? externalCards : await fetchCards(boardId);
-      setCards(cardsToUse);
+      try {
+        const user = await getUserInfo();
 
-      // 2. Существующая сессия
-      if (existingSessionId) {
-        setSessionId(existingSessionId);
-        await loadSwipes(existingSessionId, cardsToUse);
-      } else {
-        // 3. Создаём новую сессию
-        const session = await createSession(boardId);
-        setSessionId(session.id);
-        setCurrentIndex(0);
+        if (sessionId) {
+          const sessionData = await fetchSessionById(sessionId);
+          setInternalSessionId(sessionId);
+          const boardId = sessionData.board_id;
+
+          const allCards = await fetchCards(boardId);
+          const swipes = await fetchSwipesForSession(sessionId);
+          const userSwipes = swipes.filter((s) => s.user_id === user.id);
+
+          const liked = userSwipes
+            .filter((s) => s.liked)
+            .map((s) => allCards.find((c) => c.id === s.card_id))
+            .filter(Boolean);
+
+          setLikedCards(liked);
+
+          if (sessionData.is_completed) {
+            setIsCompleted(true);
+            setCurrentIndex(null);
+            return;
+          }
+
+          setCards(allCards);
+          const swipedIds = userSwipes.map((s) => s.card_id);
+          const nextIndex = allCards.findIndex((c) => !swipedIds.includes(c.id));
+          setCurrentIndex(nextIndex === -1 ? null : nextIndex);
+        } else if (!sessionCreated.current && boardIdProp) {
+          const newSession = await createSession(boardIdProp);
+          setInternalSessionId(newSession.id);
+          sessionCreated.current = true;
+
+          const allCards = await fetchCards(boardIdProp);
+          setCards(allCards);
+          setCurrentIndex(allCards.length > 0 ? 0 : null);
+        }
+      } catch (err) {
+        console.error("Ошибка инициализации сессии", err);
       }
     };
 
-    if (!sessionCreated.current && boardId) {
-      sessionCreated.current = true;
-      init();
-    }
-  }, [isOpen, boardId, existingSessionId, externalCards]);
+    init();
+  }, [isOpen, sessionId, boardIdProp]);
 
   const handleSwipe = async (direction) => {
     const currentCard = cards[currentIndex];
-    const liked = direction === 'right';
+    const liked = direction === "right";
 
-    if (sessionId && currentCard) {
+    if (internalSessionId && currentCard) {
       try {
-        await sendSwipe(sessionId, currentCard.id, liked);
+        await sendSwipe(internalSessionId, currentCard.id, liked);
       } catch (err) {
         console.error("Ошибка при отправке свайпа:", err);
       }
@@ -98,75 +97,91 @@ function SessionModal({ isOpen, onClose, boardId, sessionId: existingSessionId, 
     if (currentIndex + 1 < cards.length) {
       setCurrentIndex((prev) => prev + 1);
     } else {
-      setCurrentIndex(null); // конец
+      try {
+        await completeSession(internalSessionId); // ✅ Отмечаем завершение
+      } catch (err) {
+        console.error("Ошибка при отметке завершения:", err);
+      }
+      setIsCompleted(true);
+      setCurrentIndex(null);
     }
   };
 
   const handleFinishSession = async () => {
     try {
-      if (sessionId && !existingSessionId) {
-        await deleteSession(sessionId);
+      if (internalSessionId && !sessionId) {
+        await deleteSession(internalSessionId);
       }
     } catch (err) {
-      console.error("Ошибка при удалении сессии:", err);
+      console.error("Ошибка при завершении сессии:", err);
     }
     onClose();
   };
 
-  if (!cards || cards.length === 0) {
-    return (
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <p>Нет доступных карточек для сессии.</p>
-      </Modal>
-    );
-  }
+  const renderCard = (card) => (
+    <div key={card.id} className="liked-card">
+      {card.image_url ? (
+        <img
+          src={`http://127.0.0.1:8000/${card.image_url}`}
+          alt={card.text}
+          className="liked-card-image"
+        />
+      ) : (
+        <div className="no-image">Нет изображения</div>
+      )}
+      <div className="liked-card-text">
+        <strong>{card.text}</strong>
+        <p>{card.short_description}</p>
+      </div>
+    </div>
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      {currentIndex !== null ? (
-        <div className="session-card-container">
-          <button className="arrow-button left" onClick={() => handleSwipe('left')}>←</button>
-
-          <div className="session-card">
-            {cards[currentIndex]?.image_url && (
-              <img
-                src={`http://127.0.0.1:8000/${cards[currentIndex].image_url}`}
-                alt={cards[currentIndex].text}
-                className="session-image"
-              />
-            )}
-            <h3 className="session-title">{cards[currentIndex]?.text}</h3>
-            <p className="session-desc">{cards[currentIndex]?.short_description}</p>
-          </div>
-
-          <button className="arrow-button right" onClick={() => handleSwipe('right')}>→</button>
+      {isCompleted || currentIndex === null ? (
+        <div>
+          <h3>Сессия завершена!</h3>
+          {likedCards.length > 0 ? (
+            <>
+              <p>Вы лайкнули следующие карточки:</p>
+              <div className="liked-cards-grid">
+                {likedCards.map(renderCard)}
+              </div>
+            </>
+          ) : (
+            <p>Вы не выбрали ни одной карточки.</p>
+          )}
+          <button className="button red" onClick={handleFinishSession}>
+            Закрыть
+          </button>
         </div>
       ) : (
-        <div className="session-end">
-          <h3>Сессия завершена!</h3>
-          <h4>Лайкнутые карточки:</h4>
-          {likedCards.length > 0 ? (
-            <div className="liked-gallery">
-              {likedCards.map((card) => (
-                <div key={card.id} className="liked-card">
-                  {card.image_url && (
-                    <img
-                      src={`http://127.0.0.1:8000/${card.image_url}`}
-                      alt={card.text}
-                      className="liked-image"
-                    />
-                  )}
-                  <strong>{card.text}</strong>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Вы не лайкнули ни одной карточки.</p>
-          )}
-          <button className="button green" onClick={handleFinishSession}>
-            Завершить и удалить сессию
+        <div className="session-card-container">
+          <button className="arrow-button left" onClick={() => handleSwipe("left")}>
+            ←
           </button>
 
+          {cards[currentIndex] ? (
+            <div className="session-card">
+              {cards[currentIndex].image_url ? (
+                <img
+                  src={`http://127.0.0.1:8000/${cards[currentIndex].image_url}`}
+                  alt={cards[currentIndex].text}
+                  className="session-image"
+                />
+              ) : (
+                <div className="no-image">Нет изображения</div>
+              )}
+              <h3 className="session-title">{cards[currentIndex].text}</h3>
+              <p>{cards[currentIndex].short_description}</p>
+            </div>
+          ) : (
+            <p>Загрузка карточки...</p>
+          )}
+
+          <button className="arrow-button right" onClick={() => handleSwipe("right")}>
+            →
+          </button>
         </div>
       )}
     </Modal>

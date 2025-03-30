@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBoards } from "../hooks/useBoards";
-import { logoutUser } from "../api/auth";
-import { getUserInfo } from "../api/auth";
+import { logoutUser, getUserInfo } from "../api/auth";
 import {
   openEditModal,
   closeEditModal,
@@ -15,6 +14,7 @@ import AddBoardModal from "../components/modals/AddBoardModal";
 import BoardDetailModal from "../components/modals/BoardDetailModal";
 import AddCardModal from "../components/modals/AddCardModal";
 import EditBoardModal from "../components/modals/EditBoardModal";
+import InvitesModal from "../components/modals/InvitesModal"; // ✅ новое
 
 import "../styles/main.css";
 import "../styles/board.css";
@@ -44,6 +44,7 @@ function BoardsPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isInvitesOpen, setIsInvitesOpen] = useState(false); // ✅ новое
 
   const navigate = useNavigate();
 
@@ -80,41 +81,51 @@ function BoardsPage() {
         </div>
       </div>
 
-      <button className="button blue" onClick={() => setIsCreateModalOpen(true)}>
-        Создать доску
-      </button>
+      {/* 🔘 Кнопки действий */}
+      <div style={{ display: "flex", gap: "10px", marginBottom: "1rem" }}>
+        <button className="button blue" onClick={() => setIsInvitesOpen(true)}>
+          Приглашения
+        </button>
+        <button className="button green" onClick={() => setIsCreateModalOpen(true)}>
+          Создать доску
+        </button>
+      </div>
 
-        <ul className="boards-list">
-    {boards?.map((board) => (
-      <li
-        key={board.id}
-        onClick={() => setSelectedBoardId(board.id) || setIsDetailOpen(true)}
-      >
-        <div className="board-title">
-          <strong>{board.title}</strong>
-        </div>
-        <div
-          className="board-actions"
-          onClick={(e) => e.stopPropagation()} // предотвращаем клик по li
-        >
-          <button
-            className="icon-button edit"
-            onClick={(e) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}
+      {/* 📋 Список досок */}
+      <ul className="boards-list">
+        {boards?.map((board) => (
+          <li
+            key={board.id}
+            onClick={() => setSelectedBoardId(board.id) || setIsDetailOpen(true)}
           >
-            Редактировать
-          </button>
-          <button
-            className="icon-button delete"
-            onClick={(e) => handleDeleteBoard(e, board.id, deleteBoardMutation)}
-          >
-            Удалить
-          </button>
-        </div>
-      </li>
-    ))}
-  </ul>
+            <div className="board-title">
+              <strong>{board.title}</strong>
+            </div>
+            <div
+              className="board-actions"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                className="icon-button edit"
+                onClick={(e) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}
+              >
+                Редактировать
+              </button>
+              <button
+                className="icon-button delete"
+                onClick={(e) => handleDeleteBoard(e, board.id, deleteBoardMutation)}
+              >
+                Удалить
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
 
-      {/* Модалки */}
+      {/* ✅ Модалка приглашений */}
+      <InvitesModal isOpen={isInvitesOpen} onClose={() => setIsInvitesOpen(false)} />
+
+      {/* 📦 Модалки */}
       <AddBoardModal
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}

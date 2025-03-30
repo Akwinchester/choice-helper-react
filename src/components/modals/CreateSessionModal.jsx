@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
 import { fetchUsers } from '../../api/userApi';
-import { createSession, createGroupSession } from '../../api/sessionsApi';
+import { createGroupSession } from '../../api/sessionsApi';
+import { getUserInfo } from '../../api/auth'; // ⏺ добавили
 import '../../styles/modals/CreateSessionModal.css';
-
 
 function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
   const [sessionType, setSessionType] = useState('individual');
@@ -27,14 +27,19 @@ function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
 
   const handleCreate = async () => {
     try {
-      let created;
+      const currentUser = await getUserInfo();
+      let allUserIds = [];
+
       if (sessionType === 'group') {
-        created = await createGroupSession(boardId, selectedUsers);
+        // ⏺ добавляем инициатора в список
+        allUserIds = [...new Set([...selectedUsers, currentUser.id])];
       } else {
-        created = await createSession(boardId);
+        // ⏺ индивидуальная сессия = групповая с 1 участником
+        allUserIds = [currentUser.id];
       }
 
-      onCreated?.(created); // если нужно передать наверх
+      const created = await createGroupSession(boardId, allUserIds);
+      onCreated?.(created);
       onClose();
     } catch (err) {
       console.error("Ошибка при создании сессии", err);

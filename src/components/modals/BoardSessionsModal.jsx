@@ -59,10 +59,16 @@ function BoardSessionsModal({ isOpen, onClose, boardId }) {
                 </div>
 
                 <div className="session-actions">
-                  <button className="button blue" onClick={() => setSelectedSessionId(session.id)}>
+                  <button
+                    className="button blue"
+                    onClick={() => setSelectedSessionId(session.id)}
+                  >
                     Открыть
                   </button>
-                  <button className="button red" onClick={() => handleDelete(session.id)}>
+                  <button
+                    className="button red"
+                    onClick={() => handleDelete(session.id)}
+                  >
                     Удалить
                   </button>
                 </div>
@@ -72,14 +78,12 @@ function BoardSessionsModal({ isOpen, onClose, boardId }) {
         )}
       </Modal>
 
-      {/* Модалка сессии для выбранной */}
+      {/* Модалка открытой сессии */}
       {selectedSessionId && (
         <SessionModal
           isOpen={true}
           onClose={() => setSelectedSessionId(null)}
-          boardId={boardId}
-          sessionId={selectedSessionId}
-          cards={[]} // будет загружено позже, если нужно — передай prop сверху
+          sessionId={selectedSessionId} // ✅ Ключевой момент
         />
       )}
     </>
