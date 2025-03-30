@@ -1,0 +1,24 @@
+/* src/styles/modals/CreateSessionModal.css */
+.select {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.user-list {
+  margin: 12px 0;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.user-checkbox {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+}

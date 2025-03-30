@@ -5,6 +5,7 @@ import Modal from "./Modal";
 import CardDetailModal from "./CardDetailModal";
 import SessionModal from "./SessionModal";
 import BoardSessionsModal from "./BoardSessionsModal";
+import CreateSessionModal from "./CreateSessionModal";
 import { updateCard } from "../../api/cardsApi";
 import "../../styles/modals/BoardDetailModal.css";
 
@@ -12,6 +13,8 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
   const [selectedCard, setSelectedCard] = useState(null);
   const [isSessionOpen, setIsSessionOpen] = useState(false);
   const [isSessionsModalOpen, setIsSessionsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [createdSession, setCreatedSession] = useState(null);
   const queryClient = useQueryClient();
 
   const updateCardMutation = useMutation({
@@ -23,6 +26,11 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
 
   const handleUpdateCard = (cardId, formData) => {
     updateCardMutation.mutate({ cardId, formData });
+  };
+
+  const handleSessionCreated = (session) => {
+    setCreatedSession(session);
+    setIsSessionOpen(true);
   };
 
   if (!boardDetail) return null;
@@ -60,7 +68,7 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
         <button className="modal-button" onClick={onOpenAddCardModal}>
           Добавить карточку
         </button>
-        <button className="modal-button" onClick={() => setIsSessionOpen(true)}>
+        <button className="modal-button" onClick={() => setIsCreateModalOpen(true)}>
           Начать сессию
         </button>
         <button className="modal-button" onClick={() => setIsSessionsModalOpen(true)}>
@@ -81,12 +89,12 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
         />
       )}
 
-      {isSessionOpen && (
+      {isSessionOpen && createdSession && (
         <SessionModal
           isOpen={isSessionOpen}
           onClose={() => setIsSessionOpen(false)}
-          cards={cards}
           boardId={boardDetail.id}
+          sessionId={createdSession.id}
         />
       )}
 
@@ -95,6 +103,15 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
           isOpen={isSessionsModalOpen}
           onClose={() => setIsSessionsModalOpen(false)}
           boardId={boardDetail.id}
+        />
+      )}
+
+      {isCreateModalOpen && (
+        <CreateSessionModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          boardId={boardDetail.id}
+          onCreated={handleSessionCreated}
         />
       )}
     </Modal>

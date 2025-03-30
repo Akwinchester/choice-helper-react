@@ -41,3 +41,20 @@ export const fetchSessionsByBoard = async (boardId) => {
 export const deleteSession = async (sessionId) => {
   await apiClient.delete(`/sessions/${sessionId}`);
 };
+
+export async function createGroupSession(boardId, userIds) {
+  const res = await fetch('http://127.0.0.1:8000/sessions/group', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${localStorage.getItem("access_token")}`,
+    },
+    body: JSON.stringify({
+      board_id: boardId,
+      user_ids: userIds,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Ошибка при создании групповой сессии");
+  return await res.json();
+}

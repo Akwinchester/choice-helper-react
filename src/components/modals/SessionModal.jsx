@@ -163,11 +163,9 @@ function SessionModal({ isOpen, onClose, boardId, sessionId: existingSessionId, 
           ) : (
             <p>Вы не лайкнули ни одной карточки.</p>
           )}
-          {!existingSessionId && (
           <button className="button green" onClick={handleFinishSession}>
             Завершить и удалить сессию
           </button>
-)}
 
         </div>
       )}
