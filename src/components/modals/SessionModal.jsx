@@ -98,12 +98,22 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
       setCurrentIndex((prev) => prev + 1);
     } else {
       try {
-        await completeSession(internalSessionId); // ✅ Отмечаем завершение
+        await completeSession(internalSessionId);
       } catch (err) {
         console.error("Ошибка при отметке завершения:", err);
       }
       setIsCompleted(true);
       setCurrentIndex(null);
+    }
+  };
+
+  const handleEarlyComplete = async () => {
+    try {
+      await completeSession(internalSessionId);
+      setIsCompleted(true);
+      setCurrentIndex(null);
+    } catch (err) {
+      console.error("Ошибка при досрочном завершении:", err);
     }
   };
 
@@ -182,6 +192,13 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
           <button className="arrow-button right" onClick={() => handleSwipe("right")}>
             →
           </button>
+
+          {/* ✅ Кнопка досрочного завершения */}
+          <div style={{ marginTop: "1rem", textAlign: "center" }}>
+            <button className="button orange" onClick={handleEarlyComplete}>
+              Завершить сейчас
+            </button>
+          </div>
         </div>
       )}
     </Modal>

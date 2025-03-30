@@ -13,7 +13,9 @@ function InvitesModal({ isOpen, onClose }) {
     const load = async () => {
       try {
         const res = await fetchInvitedSessions();
-        setSessions(res);
+        // ✅ фильтруем только чужие приглашения (не созданные текущим пользователем)
+        const filtered = res.filter((s) => !s.is_creator);
+        setSessions(filtered);
       } catch (err) {
         console.error("Ошибка при загрузке приглашений", err);
       }
