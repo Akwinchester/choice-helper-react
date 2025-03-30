@@ -92,3 +92,9 @@ export const completeSession = async (sessionId) => {
   if (!res.ok) throw new Error("Ошибка при завершении сессии");
   return await res.json();
 };
+
+export async function fetchSessionAnalytics(sessionId) {
+  const res = await fetch(`http://127.0.0.1:8000/sessions/${sessionId}/analytics`);
+  if (!res.ok) throw new Error("Не удалось загрузить аналитику");
+  return res.json();
+}
