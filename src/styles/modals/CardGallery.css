@@ -1,0 +1,9 @@
+/* src/components/modals/CardGallery.css */
+
+.card-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+  justify-content: center;
+}

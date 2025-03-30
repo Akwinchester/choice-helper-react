@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/pages/BoardsPage.jsx
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBoards } from "../hooks/useBoards";
 import { logoutUser, getUserInfo } from "../api/auth";
@@ -10,11 +11,10 @@ import {
   handleCreateCard,
 } from "../utils/handlers";
 
-import AddBoardModal from "../components/modals/AddBoardModal";
-import BoardDetailModal from "../components/modals/BoardDetailModal";
-import AddCardModal from "../components/modals/AddCardModal";
-import EditBoardModal from "../components/modals/EditBoardModal";
-import InvitesModal from "../components/modals/InvitesModal"; // ✅ новое
+import BoardsHeader from "../components/modals/BoardsHeader";
+import BoardsToolbar from "../components/modals/BoardsToolbar";
+import BoardList from "../components/modals/BoardList";
+import BoardsModals from "../components/modals/BoardsModals";
 
 import "../styles/main.css";
 import "../styles/board.css";
@@ -22,12 +22,11 @@ import "../styles/board.css";
 function BoardsPage() {
   const {
     boards,
-    isBoardsLoading,
     selectedBoardId,
     setSelectedBoardId,
     boardDetail,
-    isBoardDetailLoading,
     detailCards,
+    isBoardDetailLoading,
     isDetailCardsLoading,
     createBoardMutation,
     deleteBoardMutation,
@@ -44,7 +43,7 @@ function BoardsPage() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isInvitesOpen, setIsInvitesOpen] = useState(false); // ✅ новое
+  const [isInvitesOpen, setIsInvitesOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -71,99 +70,46 @@ function BoardsPage() {
 
   return (
     <div className="container">
+      <BoardsHeader username={username} onLogout={handleLogout} />
 
-      {/* 🔹 Общий верхний хедер */}
-      <div className="header">
-        <h1>Доски</h1>
-        <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "10px" }}>
-          <span>{username}</span>
-          <button className="button red small" onClick={handleLogout}>Выйти</button>
-        </div>
-      </div>
-
-      {/* 🔘 Кнопки действий */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "1rem" }}>
-        <button className="button blue" onClick={() => setIsInvitesOpen(true)}>
-          Приглашения
-        </button>
-        <button className="button green" onClick={() => setIsCreateModalOpen(true)}>
-          Создать доску
-        </button>
-      </div>
-
-      {/* 📋 Список досок */}
-      <ul className="boards-list">
-        {boards?.map((board) => (
-          <li
-            key={board.id}
-            onClick={() => setSelectedBoardId(board.id) || setIsDetailOpen(true)}
-          >
-            <div className="board-title">
-              <strong>{board.title}</strong>
-            </div>
-            <div
-              className="board-actions"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                className="icon-button edit"
-                onClick={(e) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}
-              >
-                Редактировать
-              </button>
-              <button
-                className="icon-button delete"
-                onClick={(e) => handleDeleteBoard(e, board.id, deleteBoardMutation)}
-              >
-                Удалить
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      {/* ✅ Модалка приглашений */}
-      <InvitesModal isOpen={isInvitesOpen} onClose={() => setIsInvitesOpen(false)} />
-
-      {/* 📦 Модалки */}
-      <AddBoardModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onCreateBoard={(title, description) =>
-          handleCreateBoard(title, description, createBoardMutation, () =>
-            setIsCreateModalOpen(false)
-          )
-        }
+      <BoardsToolbar
+        onCreate={() => setIsCreateModalOpen(true)}
+        onInvites={() => setIsInvitesOpen(true)}
       />
 
-      <EditBoardModal
-        isOpen={isEditModalOpen}
-        onClose={() => closeEditModal(setIsEditModalOpen, setBoardToEdit)}
+      <BoardList
+        boards={boards}
+        onSelect={(id) => {
+          setSelectedBoardId(id);
+          setIsDetailOpen(true);
+        }}
+        onEdit={(e, board) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}
+        onDelete={(e, id) => handleDeleteBoard(e, id, deleteBoardMutation)}
+      />
+
+      <BoardsModals
+        isCreateModalOpen={isCreateModalOpen}
+        isEditModalOpen={isEditModalOpen}
+        isDetailOpen={isDetailOpen}
+        isAddCardModalOpen={isAddCardModalOpen}
+        isInvitesOpen={isInvitesOpen}
+        onCloseCreate={() => setIsCreateModalOpen(false)}
+        onCloseEdit={() => closeEditModal(setIsEditModalOpen, setBoardToEdit)}
+        onCloseDetail={() => setIsDetailOpen(false)}
+        onCloseAddCard={() => setIsAddCardModalOpen(false)}
+        onCloseInvites={() => setIsInvitesOpen(false)}
         boardToEdit={boardToEdit}
-        onUpdateBoard={(boardId, data) =>
-          updateBoardMutation.mutate({ boardId, data })
-        }
-      />
-
-      <BoardDetailModal
-        isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
         boardDetail={boardDetail}
-        cards={detailCards}
+        detailCards={detailCards}
         isLoading={isBoardDetailLoading || isDetailCardsLoading}
-        isError={false}
-        onOpenAddCardModal={() => setIsAddCardModalOpen(true)}
+        onUpdateBoard={({ boardId, data }) => updateBoardMutation.mutate({ boardId, data })}
+        onCreateBoard={(title, description) =>
+          handleCreateBoard(title, description, createBoardMutation, () => setIsCreateModalOpen(false))
+        }
         onDeleteCard={deleteCardMutation.mutate}
         onUpdateCard={updateCardMutation.mutate}
-      />
-
-      <AddCardModal
-        isOpen={isAddCardModalOpen}
-        onClose={() => setIsAddCardModalOpen(false)}
         onCreateCard={(formData) =>
-          handleCreateCard(formData, createCardMutation, () =>
-            setIsAddCardModalOpen(false)
-          )
+          handleCreateCard(formData, createCardMutation, () => setIsAddCardModalOpen(false))
         }
       />
     </div>

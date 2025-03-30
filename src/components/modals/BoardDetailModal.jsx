@@ -7,6 +7,8 @@ import SessionModal from "./SessionModal";
 import BoardSessionsModal from "./BoardSessionsModal";
 import CreateSessionModal from "./CreateSessionModal";
 import { updateCard } from "../../api/cardsApi";
+import CardGallery from "./CardGallery";
+import BoardActionButtons from "./BoardActionButtons";
 import "../../styles/modals/BoardDetailModal.css";
 
 function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, onOpenAddCardModal }) {
@@ -41,40 +43,13 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
       <p>{boardDetail.description}</p>
 
       <h3>Карточки</h3>
-      {cards && cards.length > 0 ? (
-        <div className="card-gallery">
-          {cards.map((card) => (
-            <div key={card.id} className="card-item" onClick={() => setSelectedCard(card)}>
-              {card.image_url ? (
-                <img
-                  src={`http://127.0.0.1:8000/${card.image_url}`}
-                  alt={card.text}
-                  className="card-image"
-                />
-              ) : (
-                <div className="no-image">Нет изображения</div>
-              )}
-              <div className="card-text">
-                <strong>{card.text}</strong>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p>Пока нет карточек</p>
-      )}
+      <CardGallery cards={cards} onCardClick={setSelectedCard} />
 
-      <div className="modal-buttons">
-        <button className="modal-button" onClick={onOpenAddCardModal}>
-          Добавить карточку
-        </button>
-        <button className="modal-button" onClick={() => setIsCreateModalOpen(true)}>
-          Начать сессию
-        </button>
-        <button className="modal-button" onClick={() => setIsSessionsModalOpen(true)}>
-          Сессии этой доски
-        </button>
-      </div>
+      <BoardActionButtons
+        onAddCard={onOpenAddCardModal}
+        onStartSession={() => setIsCreateModalOpen(true)}
+        onViewSessions={() => setIsSessionsModalOpen(true)}
+      />
 
       {selectedCard && (
         <CardDetailModal
@@ -83,9 +58,7 @@ function BoardDetailModal({ isOpen, onClose, boardDetail, cards, onDeleteCard, o
           card={selectedCard}
           onUpdateCard={handleUpdateCard}
           onDeleteCard={onDeleteCard}
-          onCardUpdated={(updatedCard) => {
-            setSelectedCard(updatedCard);
-          }}
+          onCardUpdated={setSelectedCard}
         />
       )}
 
