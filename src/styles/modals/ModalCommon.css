@@ -14,13 +14,14 @@
   }
   
   /* Контент */
-  .modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
-  }
+.modal-content {
+  position: relative; /* ← Вот это важно */
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+}
   
   /* Кнопка закрытия */
   .modal-close {
@@ -95,4 +96,19 @@
   .centered {
     text-align: center;
   }
-  
+
+.modal-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  color: #555;
+}

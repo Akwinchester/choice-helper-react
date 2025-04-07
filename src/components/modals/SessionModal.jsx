@@ -167,9 +167,6 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
             ) : (
               <p>Вы не выбрали ни одной карточки.</p>
             )}
-            <button className="button red" onClick={handleFinishSession}>
-              Закрыть
-            </button>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
                 <button className="button blue" onClick={() => setShowAnalysis(true)}>
                   Анализ сессии
