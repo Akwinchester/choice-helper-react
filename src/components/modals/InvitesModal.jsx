@@ -1,56 +1,65 @@
+// src/components/modals/InvitesModal.jsx
 import React, { useEffect, useState } from "react";
 import Modal from "./Modal";
-import { fetchInvitedSessions } from "../../api/sessionsApi";
 import SessionModal from "./SessionModal";
+import { fetchInvitedSessions } from "../../api/sessionsApi";
 
 function InvitesModal({ isOpen, onClose }) {
   const [sessions, setSessions] = useState([]);
-  const [selectedSession, setSelectedSession] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedSessionId, setSelectedSessionId] = useState(null);
 
   useEffect(() => {
     if (!isOpen) return;
 
-    const load = async () => {
-      try {
-        const res = await fetchInvitedSessions();
-        // ✅ фильтруем только чужие приглашения (не созданные текущим пользователем)
-        const filtered = res.filter((s) => !s.is_creator);
-        setSessions(filtered);
-      } catch (err) {
-        console.error("Ошибка при загрузке приглашений", err);
-      }
-    };
-
-    load();
+    setIsLoading(true);
+    fetchInvitedSessions()
+      .then(setSessions)
+      .catch((err) => console.error("Ошибка загрузки приглашений", err))
+      .finally(() => setIsLoading(false));
   }, [isOpen]);
 
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
-        <h2>Ваши приглашения</h2>
+        <h2>Приглашения</h2>
 
-        {sessions.length === 0 ? (
-          <p>Нет приглашений на текущий момент.</p>
+        {isLoading ? (
+          <p>Загрузка...</p>
+        ) : sessions.length === 0 ? (
+          <p>Нет приглашений</p>
         ) : (
           <ul className="session-list">
-            {sessions.map((s) => (
-              <li key={s.id} className="session-item" style={{ marginBottom: "1rem" }}>
-                <strong>Тип:</strong> {s.type} <br />
-                <strong>Создана:</strong> {new Date(s.created_at).toLocaleString()} <br />
-                <button className="button green" onClick={() => setSelectedSession(s)}>
-                  Открыть сессию
-                </button>
+            {sessions.map((session) => (
+              <li key={session.id} className="session-item">
+                <div className="session-info">
+                  <strong>Доска:</strong> {session.board_title || "—"}
+                  <br />
+                  <strong>Автор:</strong> {session.board_owner_username || "—"}
+                  <br />
+                  <strong>Дата:</strong>{" "}
+                  {new Date(session.created_at).toLocaleDateString("ru-RU")}
+                </div>
+                <div className="session-actions">
+                  <button
+                    className="button green"
+                    onClick={() => setSelectedSessionId(session.id)}
+                  >
+                    Открыть
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
         )}
       </Modal>
 
-      {selectedSession && (
+      {/* Открытие выбранной сессии */}
+      {selectedSessionId && (
         <SessionModal
           isOpen={true}
-          onClose={() => setSelectedSession(null)}
-          sessionId={selectedSession.id}
+          onClose={() => setSelectedSessionId(null)}
+          sessionId={selectedSessionId}
         />
       )}
     </>
