@@ -1,21 +1,31 @@
-// src/components/modals/CreateSessionModal.jsx
 import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
 import { fetchUsers } from '../../api/userApi';
 import { createGroupSession } from '../../api/sessionsApi';
-import { getUserInfo } from '../../api/auth'; // ⏺ добавили
+import { getUserInfo } from '../../api/auth';
 import '../../styles/modals/CreateSessionModal.css';
 
 function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
   const [sessionType, setSessionType] = useState('individual');
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null); // 🆕 добавили
 
   useEffect(() => {
+    const load = async () => {
+      try {
+        const me = await getUserInfo();
+        setCurrentUser(me);
+
+        const all = await fetchUsers();
+        setUsers(all);
+      } catch (err) {
+        console.error("Ошибка загрузки пользователей", err);
+      }
+    };
+
     if (isOpen && sessionType === 'group') {
-      fetchUsers()
-        .then(setUsers)
-        .catch((err) => console.error("Ошибка загрузки пользователей", err));
+      load();
     }
   }, [isOpen, sessionType]);
 
@@ -31,10 +41,8 @@ function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
       let allUserIds = [];
 
       if (sessionType === 'group') {
-        // ⏺ добавляем инициатора в список
         allUserIds = [...new Set([...selectedUsers, currentUser.id])];
       } else {
-        // ⏺ индивидуальная сессия = групповая с 1 участником
         allUserIds = [currentUser.id];
       }
 
@@ -64,17 +72,19 @@ function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
         <>
           <h4>Выберите участников:</h4>
           <div className="user-list">
-            {users.map((user) => (
-              <label key={user.id} className="user-checkbox">
-                <input
-                  type="checkbox"
-                  value={user.id}
-                  checked={selectedUsers.includes(user.id)}
-                  onChange={() => toggleUser(user.id)}
-                />
-                {user.username}
-              </label>
-            ))}
+            {users
+              .filter((user) => currentUser && user.id !== currentUser.id) // 🧹 исключаем текущего пользователя
+              .map((user) => (
+                <label key={user.id} className="user-checkbox">
+                  <input
+                    type="checkbox"
+                    value={user.id}
+                    checked={selectedUsers.includes(user.id)}
+                    onChange={() => toggleUser(user.id)}
+                  />
+                  {user.username}
+                </label>
+              ))}
           </div>
         </>
       )}
