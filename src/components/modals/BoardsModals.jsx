@@ -15,6 +15,7 @@ function BoardsModals({
   onCloseCreate,
   onCloseEdit,
   onCloseDetail,
+  onOpenAddCard,       // ✅ добавили
   onCloseAddCard,
   onCloseInvites,
   boardToEdit,
@@ -51,7 +52,7 @@ function BoardsModals({
         cards={detailCards}
         isLoading={isLoading}
         isError={false}
-        onOpenAddCardModal={onCloseAddCard}
+        onOpenAddCardModal={onOpenAddCard}  // ✅ исправлено
         onDeleteCard={onDeleteCard}
         onUpdateCard={onUpdateCard}
       />

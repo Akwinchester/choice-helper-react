@@ -96,6 +96,7 @@ function BoardsPage() {
         onCloseCreate={() => setIsCreateModalOpen(false)}
         onCloseEdit={() => closeEditModal(setIsEditModalOpen, setBoardToEdit)}
         onCloseDetail={() => setIsDetailOpen(false)}
+        onOpenAddCard={() => setIsAddCardModalOpen(true)}
         onCloseAddCard={() => setIsAddCardModalOpen(false)}
         onCloseInvites={() => setIsInvitesOpen(false)}
         boardToEdit={boardToEdit}
