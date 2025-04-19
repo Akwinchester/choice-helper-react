@@ -1,38 +1,52 @@
-// src/components/modals/InvitesModal.jsx
 import React, { useEffect, useState } from "react";
 import Modal from "./Modal";
-import SessionModal from "./SessionModal";
 import { fetchInvitedSessions } from "../../api/sessionsApi";
+import SessionModal from "./SessionModal";
+import SessionAnalysisModal from "./SessionAnalysisModal";
+
+import "../../styles/modals/InvitesModal.css";
 
 function InvitesModal({ isOpen, onClose }) {
-  const [sessions, setSessions] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [invites, setInvites] = useState([]);
+  const [loading, setLoading] = useState(true); // 🆕 состояние загрузки
   const [selectedSessionId, setSelectedSessionId] = useState(null);
+  const [analyticsSessionId, setAnalyticsSessionId] = useState(null);
 
   useEffect(() => {
-    if (!isOpen) return;
-
-    setIsLoading(true);
-    fetchInvitedSessions()
-      .then(setSessions)
-      .catch((err) => console.error("Ошибка загрузки приглашений", err))
-      .finally(() => setIsLoading(false));
+    if (isOpen) {
+      setLoading(true); // 🆕 включаем загрузку
+      fetchInvitedSessions()
+        .then(setInvites)
+        .catch((err) => console.error("Ошибка загрузки приглашений:", err))
+        .finally(() => setLoading(false)); // 🆕 отключаем после загрузки
+    }
   }, [isOpen]);
+
+  const handleOpenSession = (sessionId) => {
+    setAnalyticsSessionId(null);
+    setSelectedSessionId(sessionId);
+    onClose(); // ⛔ Закрываем модалку приглашений
+  };
+
+  const handleOpenAnalytics = (sessionId) => {
+    setSelectedSessionId(null);
+    setAnalyticsSessionId(sessionId);
+    onClose(); // ⛔ Закрываем модалку приглашений
+  };
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <h2>Приглашения</h2>
-
-        {isLoading ? (
-          <p>Загрузка...</p>
-        ) : sessions.length === 0 ? (
-          <p>Нет приглашений</p>
-        ) : (
-          <ul className="session-list">
-            {sessions.map((session) => (
-              <li key={session.id} className="session-item">
-                <div className="session-info">
+      {/* Показываем модалку только после полной загрузки данных */}
+      {isOpen && !loading && (
+        <Modal isOpen={true} onClose={onClose}>
+          <h2>Приглашения в сессии</h2>
+          {invites.length === 0 ? (
+            <p>Нет активных приглашений.</p>
+          ) : (
+            <ul className="invites-list">
+              {invites.map((session) => (
+                <li key={session.id} className="invite-item">
+                  <div className="session-info">
                   <strong>Доска:</strong> {session.board_title || "—"}
                   <br />
                   <strong>Автор:</strong> {session.board_owner_username || "—"}
@@ -40,26 +54,59 @@ function InvitesModal({ isOpen, onClose }) {
                   <strong>Дата:</strong>{" "}
                   {new Date(session.created_at).toLocaleDateString("ru-RU")}
                 </div>
-                <div className="session-actions">
-                  <button
-                    className="button green"
-                    onClick={() => setSelectedSessionId(session.id)}
-                  >
-                    Открыть
-                  </button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </Modal>
 
-      {/* Открытие выбранной сессии */}
+                  <div className="invite-buttons">
+                    {!session.is_completed ? (
+                      <button
+                        className="button green"
+                        onClick={() => handleOpenSession(session.id)}
+                      >
+                        Открыть
+                      </button>
+                    ) : (
+                      <>
+                        <button
+                          className="button gray"
+                          onClick={() => handleOpenSession(session.id)}
+                        >
+                          Мои лайки
+                        </button>
+                        <button
+                          className="button blue"
+                          onClick={() => handleOpenAnalytics(session.id)}
+                        >
+                          Результаты сессии
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Modal>
+      )}
+
+      {/* Пока данные грузятся — можно показать заглушку */}
+      {isOpen && loading && (
+        <Modal isOpen={true} onClose={onClose}>
+          <h2>Загрузка приглашений...</h2>
+        </Modal>
+      )}
+
       {selectedSessionId && (
         <SessionModal
           isOpen={true}
           onClose={() => setSelectedSessionId(null)}
           sessionId={selectedSessionId}
+        />
+      )}
+
+      {analyticsSessionId && (
+        <SessionAnalysisModal
+          isOpen={true}
+          onClose={() => setAnalyticsSessionId(null)}
+          sessionId={analyticsSessionId}
         />
       )}
     </>

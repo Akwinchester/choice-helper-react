@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
 import Modal from "./Modal";
 import { fetchSessionAnalytics } from "../../api/sessionsApi";
-import "../../styles/modals/SessionModal.css"; // можно вынести аналитику отдельно
+import "../../styles/modals/SessionModal.css"; // Можно вынести аналитику отдельно
 
 function SessionAnalysisModal({ isOpen, onClose, sessionId }) {
   const [grouped, setGrouped] = useState([]);
+  const [loading, setLoading] = useState(true); // 🆕 состояние загрузки
 
   useEffect(() => {
     if (!isOpen || !sessionId) return;
 
     const load = async () => {
+      setLoading(true); // 🆕 включаем загрузку
       try {
         const data = await fetchSessionAnalytics(sessionId);
         setGrouped(data);
       } catch (err) {
         console.error("Ошибка при загрузке аналитики:", err);
+      } finally {
+        setLoading(false); // 🆕 выключаем загрузку
       }
     };
 
@@ -40,22 +44,36 @@ function SessionAnalysisModal({ isOpen, onClose, sessionId }) {
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <h2>Анализ сессии</h2>
-      {grouped.length === 0 ? (
-        <p>Нет данных для анализа.</p>
-      ) : (
-        grouped.map((group) => (
-          <div key={group.count} style={{ marginBottom: "1.5rem" }}>
-            <h4>Выбрали {group.count} участника(ов):</h4>
-            <div className="liked-cards-grid">{group.cards.map(renderCard)}</div>
-          </div>
-        ))
+    <>
+      {/* Заглушка, пока грузится */}
+      {isOpen && loading && (
+        <Modal isOpen={true} onClose={onClose}>
+          <h2>Загрузка анализа...</h2>
+        </Modal>
       )}
-      <button className="button red" onClick={onClose}>
-        Закрыть
-      </button>
-    </Modal>
+
+      {/* Основное содержимое — только после загрузки */}
+      {isOpen && !loading && (
+        <Modal isOpen={true} onClose={onClose}>
+          <h2>Анализ сессии</h2>
+          {grouped.length === 0 ? (
+            <p>Нет данных для анализа.</p>
+          ) : (
+            grouped.map((group) => (
+              <div key={group.count} style={{ marginBottom: "1.5rem" }}>
+                <h4>Выбрали {group.count} участника(ов):</h4>
+                <div className="liked-cards-grid">
+                  {group.cards.map(renderCard)}
+                </div>
+              </div>
+            ))
+          )}
+          <button className="button red" onClick={onClose}>
+            Закрыть
+          </button>
+        </Modal>
+      )}
+    </>
   );
 }
 

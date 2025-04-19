@@ -13,6 +13,7 @@ import { getUserInfo } from "../../api/auth";
 import SessionAnalysisModal from "./SessionAnalysisModal";
 import "../../styles/modals/SessionModal.css";
 
+
 function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
   const [cards, setCards] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(null);
@@ -21,6 +22,7 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [loading, setLoading] = useState(true); // 🆕
   const sessionCreated = useRef(false);
 
   useEffect(() => {
@@ -32,10 +34,12 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
       setLikedCards([]);
       setIsCompleted(false);
       setIsCreator(false);
+      setLoading(true); // 🆕
       return;
     }
 
     const init = async () => {
+      setLoading(true); // 🆕 старт загрузки
       try {
         const user = await getUserInfo();
 
@@ -77,6 +81,8 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
         }
       } catch (err) {
         console.error("Ошибка инициализации сессии", err);
+      } finally {
+        setLoading(false); // 🆕 завершение загрузки
       }
     };
 
@@ -153,62 +159,75 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        {isCompleted || currentIndex === null ? (
-          <div>
-            <h3>Сессия завершена!</h3>
-            {likedCards.length > 0 ? (
-              <>
-                <p>Вы лайкнули следующие карточки:</p>
-                <div className="liked-cards-grid">
-                  {likedCards.map(renderCard)}
-                </div>
-              </>
-            ) : (
-              <p>Вы не выбрали ни одной карточки.</p>
-            )}
+      {/* Загрузка */}
+      {isOpen && loading && (
+        <Modal isOpen={true} onClose={onClose}>
+          <h2>Загрузка сессии...</h2>
+        </Modal>
+      )}
+
+      {/* Основное окно — только после полной загрузки */}
+      {isOpen && !loading && (
+        <Modal isOpen={true} onClose={onClose}>
+          {isCompleted || currentIndex === null ? (
+            <div>
+              <h3>Сессия завершена!</h3>
+              {likedCards.length > 0 ? (
+                <>
+                  <p>Вы лайкнули следующие карточки:</p>
+                  <div className="liked-cards-grid">
+                    {likedCards.map(renderCard)}
+                  </div>
+                </>
+              ) : (
+                <p>Вы не выбрали ни одной карточки.</p>
+              )}
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
-                <button className="button blue" onClick={() => setShowAnalysis(true)}>
+                <button
+                  className="button blue"
+                  onClick={() => setShowAnalysis(true)}
+                >
                   Анализ сессии
                 </button>
               </div>
-          </div>
-        ) : (
-          <div className="session-card-container">
-            <button className="arrow-button left" onClick={() => handleSwipe("left")}>
-              ←
-            </button>
-
-            {cards[currentIndex] ? (
-              <div className="session-card">
-                {cards[currentIndex].image_url ? (
-                  <img
-                    src={`http://127.0.0.1:8000/${cards[currentIndex].image_url}`}
-                    alt={cards[currentIndex].text}
-                    className="session-image"
-                  />
-                ) : (
-                  <div className="no-image">Нет изображения</div>
-                )}
-                <h3 className="session-title">{cards[currentIndex].text}</h3>
-                <p>{cards[currentIndex].short_description}</p>
-              </div>
-            ) : (
-              <p>Загрузка карточки...</p>
-            )}
-
-            <button className="arrow-button right" onClick={() => handleSwipe("right")}>
-              →
-            </button>
-
-            <div style={{ marginTop: "1rem", textAlign: "center" }}>
-              <button className="button orange" onClick={handleEarlyComplete}>
-                Завершить сейчас
-              </button>
             </div>
-          </div>
-        )}
-      </Modal>
+          ) : (
+            <div className="session-card-container">
+              <button className="arrow-button left" onClick={() => handleSwipe("left")}>
+                ←
+              </button>
+
+              {cards[currentIndex] ? (
+                <div className="session-card">
+                  {cards[currentIndex].image_url ? (
+                    <img
+                      src={`http://127.0.0.1:8000/${cards[currentIndex].image_url}`}
+                      alt={cards[currentIndex].text}
+                      className="session-image"
+                    />
+                  ) : (
+                    <div className="no-image">Нет изображения</div>
+                  )}
+                  <h3 className="session-title">{cards[currentIndex].text}</h3>
+                  <p>{cards[currentIndex].short_description}</p>
+                </div>
+              ) : (
+                <p>Загрузка карточки...</p>
+              )}
+
+              <button className="arrow-button right" onClick={() => handleSwipe("right")}>
+                →
+              </button>
+
+              <div style={{ marginTop: "1rem", textAlign: "center" }}>
+                <button className="button orange" onClick={handleEarlyComplete}>
+                  Завершить сейчас
+                </button>
+              </div>
+            </div>
+          )}
+        </Modal>
+      )}
 
       {showAnalysis && (
         <SessionAnalysisModal
