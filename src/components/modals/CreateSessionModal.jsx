@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import Modal from './Modal';
-import { fetchUsers } from '../../api/userApi';
 import { createGroupSession } from '../../api/sessionsApi';
 import { getUserInfo } from '../../api/auth';
+import { fetchFriends } from "../../api/friendsApi";
+
 import '../../styles/modals/CreateSessionModal.css';
 
 function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
   const [sessionType, setSessionType] = useState('individual');
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null); // 🆕 добавили
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -17,10 +18,10 @@ function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
         const me = await getUserInfo();
         setCurrentUser(me);
 
-        const all = await fetchUsers();
-        setUsers(all);
+        const friends = await fetchFriends();
+        setUsers(friends);
       } catch (err) {
-        console.error("Ошибка загрузки пользователей", err);
+        console.error("Ошибка загрузки друзей", err);
       }
     };
 
@@ -37,13 +38,13 @@ function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
 
   const handleCreate = async () => {
     try {
-      const currentUser = await getUserInfo();
+      const me = await getUserInfo();
       let allUserIds = [];
 
       if (sessionType === 'group') {
-        allUserIds = [...new Set([...selectedUsers, currentUser.id])];
+        allUserIds = [...new Set([...selectedUsers, me.id])];
       } else {
-        allUserIds = [currentUser.id];
+        allUserIds = [me.id];
       }
 
       const created = await createGroupSession(boardId, allUserIds);
@@ -72,19 +73,23 @@ function CreateSessionModal({ isOpen, onClose, boardId, onCreated }) {
         <>
           <h4>Выберите участников:</h4>
           <div className="user-list">
-            {users
-              .filter((user) => currentUser && user.id !== currentUser.id) // 🧹 исключаем текущего пользователя
-              .map((user) => (
-                <label key={user.id} className="user-checkbox">
-                  <input
-                    type="checkbox"
-                    value={user.id}
-                    checked={selectedUsers.includes(user.id)}
-                    onChange={() => toggleUser(user.id)}
-                  />
-                  {user.username}
-                </label>
-              ))}
+            {users.filter((u) => currentUser && u.id !== currentUser.id).length === 0 ? (
+              <p className="placeholder-text">Сначала добавьте кого-нибудь в друзья</p>
+            ) : (
+              users
+                .filter((user) => currentUser && user.id !== currentUser.id)
+                .map((user) => (
+                  <label key={user.id} className="user-checkbox">
+                    <input
+                      type="checkbox"
+                      value={user.id}
+                      checked={selectedUsers.includes(user.id)}
+                      onChange={() => toggleUser(user.id)}
+                    />
+                    {user.username}
+                  </label>
+                ))
+            )}
           </div>
         </>
       )}

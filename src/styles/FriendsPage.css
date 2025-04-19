@@ -1,0 +1,93 @@
+.friends-container {
+    padding: 2rem;
+  }
+  
+  .friends-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .friends-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .friends-buttons button {
+    padding: 6px 12px;
+    border: none;
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border-radius: 5px;
+  }
+  
+  .friends-buttons .red {
+    background-color: #dc3545;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 8px;
+    margin: 1rem 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .search-results {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 2rem;
+  }
+  
+  .search-results li {
+    padding: 5px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+
+
+  .friend-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f2f2f2;
+    border-radius: 10px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  }
+  
+  .friend-card .username {
+    font-weight: 500;
+  }
+  
+  .friend-card .card-buttons {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .friend-card .button {
+    padding: 4px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+  }
+  
+  .friend-card .green {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .search-results-popup {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  

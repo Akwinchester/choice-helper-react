@@ -7,7 +7,7 @@ import './App.css';
 import './styles/main.css';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-
+import FriendsPage from "./pages/FriendsPage";
 
 function App() {
   return (
@@ -27,6 +27,8 @@ function App() {
 
         {/* Страница регистрации (просмотр карточек, лайки и т.д.) */}
         <Route path="/register" element={<RegisterPage />} />
+
+        <Route path="/friends" element={<FriendsPage />} />
       </Routes>
     </div>
   );
