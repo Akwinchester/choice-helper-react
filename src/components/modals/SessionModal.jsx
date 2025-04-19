@@ -11,8 +11,9 @@ import {
 import { fetchCards } from "../../api/cardsApi";
 import { getUserInfo } from "../../api/auth";
 import SessionAnalysisModal from "./SessionAnalysisModal";
+import TournamentModal from "./TournamentModal";
+import { createBracket } from "../../api/bracketApi";
 import "../../styles/modals/SessionModal.css";
-
 
 function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
   const [cards, setCards] = useState([]);
@@ -22,7 +23,10 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isCreator, setIsCreator] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
-  const [loading, setLoading] = useState(true); // 🆕
+  const [loading, setLoading] = useState(true);
+  const [sessionType, setSessionType] = useState("individual");
+  const [bracketId, setBracketId] = useState(null);
+  const [showTournament, setShowTournament] = useState(false);
   const sessionCreated = useRef(false);
 
   useEffect(() => {
@@ -34,18 +38,22 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
       setLikedCards([]);
       setIsCompleted(false);
       setIsCreator(false);
-      setLoading(true); // 🆕
+      setShowAnalysis(false);
+      setShowTournament(false);
+      setBracketId(null);
+      setLoading(true);
       return;
     }
 
     const init = async () => {
-      setLoading(true); // 🆕 старт загрузки
+      setLoading(true);
       try {
         const user = await getUserInfo();
 
         if (sessionId) {
           const sessionData = await fetchSessionById(sessionId);
           setInternalSessionId(sessionId);
+          setSessionType(sessionData.type);
           const boardId = sessionData.board_id;
 
           const allCards = await fetchCards(boardId);
@@ -73,6 +81,7 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
         } else if (!sessionCreated.current && boardIdProp) {
           const newSession = await createSession(boardIdProp);
           setInternalSessionId(newSession.id);
+          setSessionType(newSession.type);
           sessionCreated.current = true;
 
           const allCards = await fetchCards(boardIdProp);
@@ -82,7 +91,7 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
       } catch (err) {
         console.error("Ошибка инициализации сессии", err);
       } finally {
-        setLoading(false); // 🆕 завершение загрузки
+        setLoading(false);
       }
     };
 
@@ -139,6 +148,17 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
     onClose();
   };
 
+  const handleStartTournament = async () => {
+    try {
+      const bracket = await createBracket(internalSessionId);
+      setBracketId(bracket.id);
+      setShowTournament(true);
+    } catch (err) {
+      console.error("Ошибка при создании турнира", err);
+      alert("Не удалось создать турнир");
+    }
+  };
+
   const renderCard = (card) => (
     <div key={card.id} className="liked-card">
       {card.image_url ? (
@@ -159,14 +179,12 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
 
   return (
     <>
-      {/* Загрузка */}
       {isOpen && loading && (
         <Modal isOpen={true} onClose={onClose}>
           <h2>Загрузка сессии...</h2>
         </Modal>
       )}
 
-      {/* Основное окно — только после полной загрузки */}
       {isOpen && !loading && (
         <Modal isOpen={true} onClose={onClose}>
           {isCompleted || currentIndex === null ? (
@@ -178,18 +196,20 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
                   <div className="liked-cards-grid">
                     {likedCards.map(renderCard)}
                   </div>
+
+                  {sessionType === "individual" ? (
+                    <button className="button green" onClick={handleStartTournament}>
+                      Создать турнир
+                    </button>
+                  ) : (
+                    <button className="button blue" onClick={() => setShowAnalysis(true)}>
+                      Анализ сессии
+                    </button>
+                  )}
                 </>
               ) : (
                 <p>Вы не выбрали ни одной карточки.</p>
               )}
-              <div style={{ marginTop: "1rem", textAlign: "center" }}>
-                <button
-                  className="button blue"
-                  onClick={() => setShowAnalysis(true)}
-                >
-                  Анализ сессии
-                </button>
-              </div>
             </div>
           ) : (
             <div className="session-card-container">
@@ -234,6 +254,17 @@ function SessionModal({ isOpen, onClose, boardId: boardIdProp, sessionId }) {
           isOpen={true}
           onClose={() => setShowAnalysis(false)}
           sessionId={internalSessionId}
+        />
+      )}
+
+      {showTournament && bracketId && (
+        <TournamentModal
+          bracketId={bracketId}
+          boardId={boardIdProp}
+          onClose={() => {
+            setShowTournament(false);
+            setBracketId(null);
+          }}
         />
       )}
     </>
