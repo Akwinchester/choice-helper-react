@@ -8,35 +8,38 @@ import "../../styles/modals/InvitesModal.css";
 
 function InvitesModal({ isOpen, onClose }) {
   const [invites, setInvites] = useState([]);
-  const [loading, setLoading] = useState(true); // 🆕 состояние загрузки
+  const [loading, setLoading] = useState(true);
   const [selectedSessionId, setSelectedSessionId] = useState(null);
   const [analyticsSessionId, setAnalyticsSessionId] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
-      setLoading(true); // 🆕 включаем загрузку
+      setLoading(true);
       fetchInvitedSessions()
-        .then(setInvites)
+        .then((data) => {
+          // ✅ фильтруем сессии, где пользователь НЕ является создателем
+          const filtered = data.filter((session) => !session.is_creator);
+          setInvites(filtered);
+        })
         .catch((err) => console.error("Ошибка загрузки приглашений:", err))
-        .finally(() => setLoading(false)); // 🆕 отключаем после загрузки
+        .finally(() => setLoading(false));
     }
   }, [isOpen]);
 
   const handleOpenSession = (sessionId) => {
     setAnalyticsSessionId(null);
     setSelectedSessionId(sessionId);
-    onClose(); // ⛔ Закрываем модалку приглашений
+    onClose();
   };
 
   const handleOpenAnalytics = (sessionId) => {
     setSelectedSessionId(null);
     setAnalyticsSessionId(sessionId);
-    onClose(); // ⛔ Закрываем модалку приглашений
+    onClose();
   };
 
   return (
     <>
-      {/* Показываем модалку только после полной загрузки данных */}
       {isOpen && !loading && (
         <Modal isOpen={true} onClose={onClose}>
           <h2>Приглашения в сессии</h2>
@@ -47,13 +50,13 @@ function InvitesModal({ isOpen, onClose }) {
               {invites.map((session) => (
                 <li key={session.id} className="invite-item">
                   <div className="session-info">
-                  <strong>Доска:</strong> {session.board_title || "—"}
-                  <br />
-                  <strong>Автор:</strong> {session.board_owner_username || "—"}
-                  <br />
-                  <strong>Дата:</strong>{" "}
-                  {new Date(session.created_at).toLocaleDateString("ru-RU")}
-                </div>
+                    <strong>Доска:</strong> {session.board_title || "—"}
+                    <br />
+                    <strong>Автор:</strong> {session.board_owner_username || "—"}
+                    <br />
+                    <strong>Дата:</strong>{" "}
+                    {new Date(session.created_at).toLocaleDateString("ru-RU")}
+                  </div>
 
                   <div className="invite-buttons">
                     {!session.is_completed ? (
@@ -87,7 +90,6 @@ function InvitesModal({ isOpen, onClose }) {
         </Modal>
       )}
 
-      {/* Пока данные грузятся — можно показать заглушку */}
       {isOpen && loading && (
         <Modal isOpen={true} onClose={onClose}>
           <h2>Загрузка приглашений...</h2>

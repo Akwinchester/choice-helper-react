@@ -15,7 +15,7 @@ import {
   updateCard,
 } from "../api/cardsApi";
 
-export function useBoards() {
+export function useBoards(setIsEditModalOpenExternally) {
   const queryClient = useQueryClient();
   const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [boardToEdit, setBoardToEdit] = useState(null);
@@ -52,13 +52,20 @@ export function useBoards() {
     onSuccess: () => queryClient.invalidateQueries(["boards"]),
   });
 
-  // ✅ ОБНОВЛЕНИЕ ДОСКИ (исправлено)
+  // ✅ ОБНОВЛЕНИЕ ДОСКИ + закрытие модалки
   const updateBoardMutation = useMutation({
-    mutationFn: ({ boardId, data }) => updateBoard(boardId, data), // 👈 принимает объект с полями
+    mutationFn: ({ boardId, data }) => updateBoard(boardId, data),
     onSuccess: () => {
       queryClient.invalidateQueries(["boards"]);
-      if (selectedBoardId)
+      if (selectedBoardId) {
         queryClient.invalidateQueries(["boardDetail", selectedBoardId]);
+      }
+
+      // ✅ Закрыть модалку редактирования, если функция передана
+      if (setIsEditModalOpenExternally) {
+        setIsEditModalOpenExternally(false);
+        setBoardToEdit(null);
+      }
     },
   });
 
@@ -104,7 +111,7 @@ export function useBoards() {
     isDetailCardsLoading,
     createBoardMutation,
     deleteBoardMutation,
-    updateBoardMutation,     // <--- ЭТО ОН
+    updateBoardMutation,
     createCardMutation,
     attachCardToBoardMutation,
     deleteCardMutation,

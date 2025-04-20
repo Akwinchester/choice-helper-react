@@ -20,6 +20,14 @@ import "../styles/main.css";
 import "../styles/board.css";
 
 function BoardsPage() {
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isInvitesOpen, setIsInvitesOpen] = useState(false);
+  const [username, setUsername] = useState("");
+
+  // ✅ Передаём setIsEditModalOpen внутрь useBoards
   const {
     boards,
     selectedBoardId,
@@ -36,14 +44,7 @@ function BoardsPage() {
     updateCardMutation,
     boardToEdit,
     setBoardToEdit,
-  } = useBoards();
-
-  const [username, setUsername] = useState("");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isAddCardModalOpen, setIsAddCardModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isInvitesOpen, setIsInvitesOpen] = useState(false);
+  } = useBoards(setIsEditModalOpen);
 
   const navigate = useNavigate();
 
@@ -83,8 +84,12 @@ function BoardsPage() {
           setSelectedBoardId(id);
           setIsDetailOpen(true);
         }}
-        onEdit={(e, board) => openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)}
-        onDelete={(e, id) => handleDeleteBoard(e, id, deleteBoardMutation)}
+        onEdit={(e, board) =>
+          openEditModal(e, board, setBoardToEdit, setIsEditModalOpen)
+        }
+        onDelete={(e, id) =>
+          handleDeleteBoard(e, id, deleteBoardMutation)
+        }
       />
 
       <BoardsModals
@@ -103,14 +108,25 @@ function BoardsPage() {
         boardDetail={boardDetail}
         detailCards={detailCards}
         isLoading={isBoardDetailLoading || isDetailCardsLoading}
-        onUpdateBoard={({ boardId, data }) => updateBoardMutation.mutate({ boardId, data })}
+        onUpdateBoard={(boardId, data) =>
+          updateBoardMutation.mutate({ boardId, data })
+        }
         onCreateBoard={(title, description) =>
-          handleCreateBoard(title, description, createBoardMutation, () => setIsCreateModalOpen(false))
+          handleCreateBoard(
+            title,
+            description,
+            createBoardMutation,
+            () => setIsCreateModalOpen(false)
+          )
         }
         onDeleteCard={deleteCardMutation.mutate}
         onUpdateCard={updateCardMutation.mutate}
         onCreateCard={(formData) =>
-          handleCreateCard(formData, createCardMutation, () => setIsAddCardModalOpen(false))
+          handleCreateCard(
+            formData,
+            createCardMutation,
+            () => setIsAddCardModalOpen(false)
+          )
         }
       />
     </div>
